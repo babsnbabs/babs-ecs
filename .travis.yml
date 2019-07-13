@@ -3,6 +3,7 @@ language: cpp
 os:
   - linux
   - windows
+  - osx
 
 compiler:
   - clang
@@ -11,7 +12,7 @@ script:
   - mkdir build
   - cd build
   - cmake ..
-  - if [ "$TRAVIS_OS_NAME" = "linux" OR "$TRAVIS_OS_NAME" = "osx" ]; then make;                         fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" OR "$TRAVIS_OS_NAME" = "osx" ]; then ./tests;                      fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ];   then cmake --build . --target ALL_BUILD --config Release;   fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ];   then .\\Release\\tests.exe;                                 fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] || [ "$TRAVIS_OS_NAME" = "osx" ]; then make;                   fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] || [ "$TRAVIS_OS_NAME" = "osx" ]; then ./tests;                fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then cmake --build . --target ALL_BUILD --config Release;   fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then .\\Release\\tests.exe;                                 fi
