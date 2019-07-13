@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 
-project(cpp-throwaway)
+project(babsecs)
 
 # compiler settings
 # compiler is set with CC/CXX environment variables
@@ -30,20 +30,20 @@ link_directories(
 
 # common source files - things that get tested basically
 set(TESTED_SOURCES
-    src/utils/math.cpp)
+    src/temp/math.cpp)
 
 # tests
 add_executable(tests
     src/tests.cpp
     ${TESTED_SOURCES}
-    src/utils/math_tests.cpp
+    src/temp/math_tests.cpp
 )
 add_dependencies(tests catch)
 
 # main
-add_executable(cpp-throwaway
+add_executable(babsecs
     src/main.cpp
     ${TESTED_SOURCES}
 )
-add_dependencies(cpp-throwaway tests)
+add_dependencies(babsecs tests)
 
