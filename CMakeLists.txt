@@ -37,6 +37,7 @@ add_executable(tests
     src/tests.cpp
     ${TESTED_SOURCES}
     src/temp/math_tests.cpp
+	src/bitfield_tests.cpp
 )
 add_dependencies(tests catch)
 

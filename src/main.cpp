@@ -1,5 +1,6 @@
 #include <iostream>
 #include "temp/math.hpp"
+#include "bitfield.hpp"
 
 int main() {
 	std::cout << "BabsECS, Hello World!" << std::endl;
