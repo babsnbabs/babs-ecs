@@ -21,7 +21,6 @@ namespace
 
 	bool HasAll(Bitfield field, Bitfield flags)
 	{
-		uint32_t result = field & flags;
 		return (field & flags) == flags;
 	}
 }

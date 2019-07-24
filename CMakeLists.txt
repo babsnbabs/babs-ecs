@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 
-project(babsecs)
+project(babs-ecs)
 
 # compiler settings
 # compiler is set with CC/CXX environment variables
@@ -42,9 +42,9 @@ add_executable(tests
 add_dependencies(tests catch)
 
 # main
-add_executable(babsecs
+add_executable(babs-ecs
     src/main.cpp
     ${TESTED_SOURCES}
 )
-add_dependencies(babsecs tests)
+add_dependencies(babs-ecs tests)
 
