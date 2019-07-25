@@ -53,7 +53,7 @@ public:
 	void AddComponent(Entity entity, T component);
 
 	template <typename T>
-	T GetComponent(Entity entity, T component);
+	T* GetComponent(Entity entity, T component);
 private:
 	Entity entityIndex;
 	Bitfield bitIndex;
@@ -109,7 +109,7 @@ inline void ECS::AddComponent(Entity entity, T component)
 }
 
 template<typename T>
-inline T ECS::GetComponent(Entity entity, T component)
+inline T* ECS::GetComponent(Entity entity, T component)
 {
 	std::string componentName = this->GetComponentName(component);
 	int componentFlag = componentIndex[componentName];
@@ -117,10 +117,10 @@ inline T ECS::GetComponent(Entity entity, T component)
 	if (Has(entities[entity], componentFlag))
 	{
 		ComponentContainer<T>* container = dynamic_cast<ComponentContainer<T>*>(this->components[componentName]);
-		return container->data[entity];
+		return &container->data[entity];
 	}
 
-	//return NULL;
+	return NULL;
 }
 
 template<typename T>

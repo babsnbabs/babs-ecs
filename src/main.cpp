@@ -43,8 +43,8 @@ int main() {
 	std::cout << "Added health component to Babs2, Max: " << health.max << " current: " << health.current << std::endl;
 
 	// This does not get the Health Component attached to babs2
-	Health babs2Hp = ecs.GetComponent(babs2, Health());
-	std::cout << "Retrived health component for Babs2: Max: " << babs2Hp.max << " Current: " << babs2Hp.current << std::endl;
+	Health* babs2Hp = ecs.GetComponent(babs2, Health());
+	std::cout << "Retrived health component for Babs2: Max: " << babs2Hp->max << " Current: " << babs2Hp->current << std::endl;
 
 	return 0;
 }
