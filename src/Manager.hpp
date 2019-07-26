@@ -40,7 +40,7 @@ public:
 		Entity e = this->entityIndex;
 		this->entityIndex++;
 
-		Bitfield bit = 0;
+		bitfield::Bitfield bit = 0;
 		this->entities[e] = bit;
 
 		return e;
@@ -56,11 +56,11 @@ public:
 	T* GetComponent(Entity entity, T component);
 private:
 	Entity entityIndex;
-	Bitfield bitIndex;
-	std::map<Entity, Bitfield> entities;
+	bitfield::Bitfield bitIndex;
+	std::map<Entity, bitfield::Bitfield> entities;
 	
 	std::map<std::string, BaseContainer*> components;
-	std::map<std::string, Bitfield> componentIndex;
+	std::map<std::string, bitfield::Bitfield> componentIndex;
 	
 	template <typename T>
 	std::string GetComponentName(T component);
@@ -101,10 +101,10 @@ inline void ECS::AddComponent(Entity entity, T component)
 	container->data[entity] = component;
 	int componentFlag = componentIndex[componentName];
 
-	entities.insert(std::pair<Entity, Bitfield>(entities[entity], componentFlag));
+	entities.insert(std::pair<Entity, bitfield::Bitfield>(entities[entity], componentFlag));
 	components[componentName] = container;
 
-    entities[entity] = Set(entities[entity], componentFlag);
+    entities[entity] = bitfield::Set(entities[entity], componentFlag);
 
 	std::cout << "added data for " << componentName << " to ECS for entity " << entity << std::endl;
 	std::cout << " container has " << container->data.size() << " components in it" << std::endl;
@@ -116,7 +116,7 @@ inline T* ECS::GetComponent(Entity entity, T component)
 	std::string componentName = this->GetComponentName(component);
 	int componentFlag = componentIndex[componentName];
 
-	if (Has(entities[entity], componentFlag))
+	if (bitfield::Has(entities[entity], componentFlag))
 	{
 		ComponentContainer<T>* container = dynamic_cast<ComponentContainer<T>*>(this->components[componentName]);
 		return &container->data[entity];
