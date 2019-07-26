@@ -104,6 +104,8 @@ inline void ECS::AddComponent(Entity entity, T component)
 	entities.insert(std::pair<Entity, Bitfield>(entities[entity], componentFlag));
 	components[componentName] = container;
 
+    entities[entity] = Set(entities[entity], componentFlag);
+
 	std::cout << "added data for " << componentName << " to ECS for entity " << entity << std::endl;
 	std::cout << " container has " << container->data.size() << " components in it" << std::endl;
 }
