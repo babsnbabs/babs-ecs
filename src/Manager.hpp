@@ -1,3 +1,5 @@
+#pragma once
+
 #include "bitfield.hpp"
 #include <string>
 #include <map>
