@@ -1,4 +1,6 @@
 #pragma once
+#ifndef Manager
+#define Manager
 
 #include "bitfield.hpp"
 #include <string>
@@ -79,7 +81,7 @@ inline void ECS::RegisterComponent(T component)
 		componentIndex[componentName] = bitIndex;
 		components[componentName] = new ComponentContainer<T>();
 
-		int lastIndex = bitIndex;
+		unsigned int lastIndex = bitIndex;
 		bitIndex *= 2;
 		if (bitIndex < lastIndex)
 		{
@@ -131,3 +133,4 @@ inline std::string ECS::GetComponentName(T component)
 {
 	return typeid(component).name();
 }
+#endif
