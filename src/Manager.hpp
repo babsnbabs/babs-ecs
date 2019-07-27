@@ -1,14 +1,12 @@
 #pragma once
-#ifndef Manager
-#define Manager
 
 #include "bitfield.hpp"
 #include <string>
 #include <map>
-#include <stdint.h>
 #include <iostream>
 #include <stdexcept>
 #include <set>
+#include <typeinfo>
 
 typedef uint32_t Entity;
 
@@ -133,4 +131,3 @@ inline std::string ECS::GetComponentName(T component)
 {
 	return typeid(component).name();
 }
-#endif
