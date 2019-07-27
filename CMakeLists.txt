@@ -29,14 +29,12 @@ link_directories(
 )
 
 # common source files - things that get tested basically
-set(TESTED_SOURCES
-    src/temp/math.cpp)
+set(TESTED_SOURCES)
 
 # tests
 add_executable(tests
     src/tests.cpp
     ${TESTED_SOURCES}
-    src/temp/math_tests.cpp
 	src/bitfield_tests.cpp
 )
 add_dependencies(tests catch)
