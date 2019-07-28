@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include "bitfield.hpp"
 
-TEST_CASE("bitfield SET", "[bitfield]")
+TEST_CASE("bitfield SET")
 {
 	bitfield::Bitfield bits = 0b0000;
 
@@ -19,7 +19,7 @@ TEST_CASE("bitfield SET", "[bitfield]")
 }
 
 
-TEST_CASE("bitfield CLEAR", "[bitfield]")
+TEST_CASE("bitfield CLEAR")
 {
 	// start with two bits set
 	bitfield::Bitfield bits = 0b1100;
@@ -33,7 +33,7 @@ TEST_CASE("bitfield CLEAR", "[bitfield]")
 	REQUIRE(bits == 0b0100);
 }
 
-TEST_CASE("bitfield HAS", "[bitfield]")
+TEST_CASE("bitfield HAS")
 {
 	// start with two bits set
 	bitfield::Bitfield bits = 0b1100;
