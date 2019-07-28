@@ -35,6 +35,8 @@ set(TESTED_SOURCES)
 add_executable(tests
     src/tests.cpp
     ${TESTED_SOURCES}
+	src/bitfield_tests.cpp
+	src/manager_tests.cpp
 )
 add_dependencies(tests catch)
 
