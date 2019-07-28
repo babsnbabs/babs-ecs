@@ -38,6 +38,12 @@ int main()
 
 	Entity enemy = ecs.CreateEntity();
 	AI enemyAi = AI{ "hard" };
+    ecs.AddComponent(enemy, enemyAi);
 
+    for (auto entity : ecs.EntitiesWith(Health{}))
+    {
+        std::cout << "entity with health: " << entity << std::endl;
+    }
+    
 	return 0;
 }

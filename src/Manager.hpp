@@ -63,8 +63,8 @@ public:
 	template <typename T>
 	T* GetComponent(Entity entity, T component);
 
-	//template<typename T>
-	//std::vector<Entity> EntitiesWith(std::vector<T> components);
+	template<typename... Ts>
+	std::vector<Entity> EntitiesWith(Ts&&... types);
 private:
 	Entity entityIndex;
 	bitfield::Bitfield bitIndex;
@@ -75,6 +75,14 @@ private:
 
 	template <typename T>
 	std::string GetComponentName(T component);
+
+    std::vector<std::string> GetComponentNames(std::vector<std::string> names);
+
+    template <typename T>
+    std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type);
+
+    template <typename T, typename ...Ts>
+    std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type, Ts... types);
 };
 
 template<typename T>
@@ -136,34 +144,60 @@ inline T* ECS::GetComponent(Entity entity, T component)
 	return NULL;
 }
 
-//template<typename T>
-//inline std::vector<Entity> ECS::EntitiesWith(std::vector<T> components)
-//{
-//	std::vector<Entity> requestedEntities;
-//		
-//	for (auto const& entity : this->entities)
-//	{
-//		bool hasAllComponents = true;
-//		
-//		for (T requestedComponent : components)
-//		{
-//			Bitfield componentFlag = componentIndex[this->GetComponentName(component)];
-//		
-//			if (!bitfield::Has(entities[entity.second], componentFlag))
-//			{
-//				hasAllComponents = false;
-//				break;
-//			}
-//		}
-//
-//		if (hasAllComponents)
-//		{
-//			requestedEntities.push_back(entity.first);
-//		}
-//	}
-//		
-//	return requestedEntities;
-//}
+std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names)
+{
+    return names;
+}
+
+template <typename T>
+std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, T type)
+{
+    std::string name = this->GetComponentName(std::forward<T>(type));
+    names.push_back(name);
+
+    return names;
+}
+
+template <typename T, typename ...Ts>
+std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, T type, Ts... types)
+{
+    std::string name = this->GetComponentName(std::forward<T>(type));
+    names.push_back(name);
+    
+    // recursion basically - we keep showing up in this function, and eventually
+    // we hit the base case of one type and no list of types, so we get sent to the
+    // function above and then everything returns back to the caller.
+    this->GetComponentNames(names, std::forward<Ts>(types)...);
+
+    return names;
+}
+
+
+template <typename... Types>
+inline std::vector<Entity> ECS::EntitiesWith(Types&&... types)
+{
+    // build bitfield flags for this search
+    std::vector<std::string> componentNames;
+    componentNames = this->GetComponentNames(componentNames, std::forward<Types>(types)...);
+
+    bitfield::Bitfield field = 0;
+    for (auto name : componentNames)
+    {
+        field = bitfield::Set(field, this->componentIndex[name]);
+    }
+
+    // search time
+    std::vector<Entity> requestedEntities;
+    for (auto mapEntry : this->entities) {
+        std::cout << "  checking entity " << mapEntry.first << std::endl;
+        if (bitfield::Has(mapEntry.second, field)) {
+            std::cout << "    adding" << std::endl;
+            requestedEntities.push_back(mapEntry.first);
+        }
+    }
+		
+	return requestedEntities;
+}
 
 template<typename T>
 inline std::string ECS::GetComponentName(T component)

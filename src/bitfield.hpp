@@ -51,4 +51,4 @@ namespace bitfield
 	{
 		return (field & flag) == flag;
 	}
-};
+}
