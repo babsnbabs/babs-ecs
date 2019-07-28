@@ -1,5 +1,5 @@
 # BabsECS
-[![Build Status](https://travis-ci.org/misnor/babsecs.svg?branch=master)](https://travis-ci.org/misnor/babsecs)
+[![Build Status](https://travis-ci.org/babsnbabs/babs-ecs.svg?branch=master)](https://travis-ci.org/babsnbabs/babsecs)
 
 Entity Component System implemented in C++, ideally with decent error handling and acceptable performance.
 
