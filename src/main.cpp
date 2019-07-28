@@ -5,21 +5,16 @@ struct Health
 {
 	int max;
 	int current;
-
-
-	std::string ToString() {
-		return "health";
-	}
 };
 
 struct Identity
 {
 	std::string name;
+};
 
-
-	std::string ToString() {
-		return "identity";
-	}
+struct AI
+{
+	std::string difficulty;
 };
 
 int main() 
@@ -27,17 +22,22 @@ int main()
 	ECS ecs;
 	ecs.RegisterComponent(Identity());
 	ecs.RegisterComponent(Health());
-	Identity babs1Ident{ "Babs1 Biddy Babs" };
+	ecs.RegisterComponent(AI());
+
 	Entity babs1 = ecs.CreateEntity();
+	Health babs1Hp = Health{ 100, 44 };
+	Identity babs1Ident = Identity{ "babs1" };
+	ecs.AddComponent(babs1, babs1Hp);
 	ecs.AddComponent(babs1, babs1Ident);
 
-	// Should have identity now
-	Identity* b1IdentityRetrieved = ecs.GetComponent(babs1, Identity());
-	if (b1IdentityRetrieved == NULL)
-	{
-		throw std::runtime_error("Expected component on entity");
-	}
+	Entity babs2 = ecs.CreateEntity();
+	Health babs2Hp = Health{ 200, 144 };
+	Identity babs2Ident = Identity{ "babs2" };
+	ecs.AddComponent(babs2, babs2Hp);
+	ecs.AddComponent(babs2, babs2Ident);
 
-	std::cout << b1IdentityRetrieved->name << std::endl;
+	Entity enemy = ecs.CreateEntity();
+	AI enemyAi = AI{ "hard" };
+
 	return 0;
 }

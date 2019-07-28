@@ -7,8 +7,15 @@
 #include <stdexcept>
 #include <set>
 #include <typeinfo>
+#include <vector>
 
 typedef uint32_t Entity;
+	
+template<typename T>
+class ComponentVector
+{
+	std::vector<T> Components;
+};
 
 // Exists to satisfying compiler warnings
 class BaseContainer
@@ -55,6 +62,9 @@ public:
 
 	template <typename T>
 	T* GetComponent(Entity entity, T component);
+
+	//template<typename T>
+	//std::vector<Entity> EntitiesWith(std::vector<T> components);
 private:
 	Entity entityIndex;
 	bitfield::Bitfield bitIndex;
@@ -125,6 +135,35 @@ inline T* ECS::GetComponent(Entity entity, T component)
 
 	return NULL;
 }
+
+//template<typename T>
+//inline std::vector<Entity> ECS::EntitiesWith(std::vector<T> components)
+//{
+//	std::vector<Entity> requestedEntities;
+//		
+//	for (auto const& entity : this->entities)
+//	{
+//		bool hasAllComponents = true;
+//		
+//		for (T requestedComponent : components)
+//		{
+//			Bitfield componentFlag = componentIndex[this->GetComponentName(component)];
+//		
+//			if (!bitfield::Has(entities[entity.second], componentFlag))
+//			{
+//				hasAllComponents = false;
+//				break;
+//			}
+//		}
+//
+//		if (hasAllComponents)
+//		{
+//			requestedEntities.push_back(entity.first);
+//		}
+//	}
+//		
+//	return requestedEntities;
+//}
 
 template<typename T>
 inline std::string ECS::GetComponentName(T component)
