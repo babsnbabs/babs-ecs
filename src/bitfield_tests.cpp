@@ -1,4 +1,4 @@
-#include "catch/catch.hpp"
+#include "doctest.h"
 #include "bitfield.hpp"
 
 TEST_CASE("bitfield SET", "[bitfield]")

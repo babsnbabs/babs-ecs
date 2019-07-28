@@ -1,6 +1,6 @@
-#include "catch/catch.hpp"
-#include "Manager.hpp"
+#include "doctest.h"
 
+#include "Manager.hpp"
 #include <string>
 
 struct Identity
@@ -53,8 +53,6 @@ TEST_CASE("Manager Happy Path", "[manager]")
 
 	// Getting component
 	Health* storedHp = ecs.GetComponent(entity1, Health());
-
-	REQUIRE(storedHp != NULL);
 
 	REQUIRE(storedHp->current == hp.current);
 	REQUIRE(storedHp->max == hp.max);
