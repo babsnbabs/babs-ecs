@@ -11,12 +11,6 @@
 
 typedef uint32_t Entity;
 	
-template<typename T>
-class ComponentVector
-{
-	std::vector<T> Components;
-};
-
 // Exists to satisfying compiler warnings
 class BaseContainer
 {
@@ -172,13 +166,12 @@ std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, 
     return names;
 }
 
-
-template <typename... Types>
-inline std::vector<Entity> ECS::EntitiesWith(Types&&... types)
+template<typename ...Ts>
+inline std::vector<Entity> ECS::EntitiesWith(Ts&& ...types)
 {
     // build bitfield flags for this search
     std::vector<std::string> componentNames;
-    componentNames = this->GetComponentNames(componentNames, std::forward<Types>(types)...);
+    componentNames = this->GetComponentNames(componentNames, std::forward<Ts>(types)...);
 
     bitfield::Bitfield field = 0;
     for (auto name : componentNames)
