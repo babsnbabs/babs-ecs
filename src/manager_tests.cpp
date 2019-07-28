@@ -14,7 +14,7 @@ struct Health
 	int current;
 };
 
-TEST_CASE("manager REGISTER", "[manager]")
+TEST_CASE("manager REGISTER")
 {
 	ECS ecs;
 
@@ -22,7 +22,7 @@ TEST_CASE("manager REGISTER", "[manager]")
 	ecs.RegisterComponent(Health());
 }
 
-TEST_CASE("manager CREATE", "[manager]")
+TEST_CASE("manager CREATE")
 {
 	ECS ecs;
 
@@ -39,7 +39,7 @@ TEST_CASE("manager CREATE", "[manager]")
 	REQUIRE(e4 != NULL);
 }
 
-TEST_CASE("Manager Happy Path", "[manager]")
+TEST_CASE("Manager Happy Path")
 {
 	ECS ecs;
 
