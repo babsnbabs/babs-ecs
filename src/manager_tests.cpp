@@ -53,7 +53,8 @@ TEST_CASE("Manager Happy Path")
 
 	// Getting component
 	Health* storedHp = ecs.GetComponent(entity1, Health());
-
+	
+	REQUIRE(storedHp != nullptr);
 	REQUIRE(storedHp->current == hp.current);
 	REQUIRE(storedHp->max == hp.max);
 }
