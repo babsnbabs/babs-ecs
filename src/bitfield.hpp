@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 // The bitfield namespace contains a type and operations with a more intuitive naming convention.
 // It's up to the caller to keep track of which flags are being used and to increase the flag index
@@ -16,7 +17,7 @@ namespace bitfield
      *  ------------
      *  returns 0011
      */
-	Bitfield Set(Bitfield field, Bitfield flag)
+	inline Bitfield Set(Bitfield field, Bitfield flag)
 	{
 		return field | flag;
 	}
@@ -30,7 +31,7 @@ namespace bitfield
      *  ------------
      *  returns 0001
      */
-	Bitfield Clear(Bitfield field, Bitfield flag)
+	inline Bitfield Clear(Bitfield field, Bitfield flag)
 	{
 		return field ^ flag;
 	}
@@ -46,8 +47,8 @@ namespace bitfield
      * 
      *  returns false   true    false   true
      */
-	bool Has(Bitfield field, Bitfield flag)
+	inline bool Has(Bitfield field, Bitfield flag)
 	{
 		return (field & flag) == flag;
 	}
-};
+}

@@ -15,13 +15,14 @@ endif(WIN32)
 
 # External dependencies
 # include/link directories get exported from this dependencies.cmake file
+
 # for use in the rest of this CMakeLists.txt script
 include(dependencies.cmake)
 
 # Add libraries to the compilation/linking search paths
 include_directories(
     SYSTEM
-    ${CATCH_INCLUDE_DIR}
+    ${DOCTEST_INCLUDE_DIR}
 )
 
 link_directories(
@@ -36,8 +37,9 @@ add_executable(tests
     src/tests.cpp
     ${TESTED_SOURCES}
 	src/bitfield_tests.cpp
+	src/manager_tests.cpp
 )
-add_dependencies(tests catch)
+add_dependencies(tests doctest)
 
 # main
 add_executable(babs-ecs

@@ -1,17 +1,15 @@
 # load the cmake commands we need to use
 include(ExternalProject)
+find_package(Git REQUIRED)
 
 # where we want to install our libraries
 set(LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
 
-# unit testing library
 ExternalProject_Add(
-    catch
-    PREFIX ${LIBS_DIR}/catch
-    URL "https://github.com/catchorg/Catch2/releases/download/v2.9.1/catch.hpp"
+    doctest
+    PREFIX ${LIBS_DIR}/doctest
+    GIT_REPOSITORY https://github.com/onqtam/doctest.git
     TIMEOUT 10
-    DOWNLOAD_NO_EXTRACT TRUE
-    DOWNLOAD_DIR ${LIBS_DIR}/catch/src/catch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
@@ -19,4 +17,6 @@ ExternalProject_Add(
     LOG_DOWNLOAD ON
 )
 
-set(CATCH_INCLUDE_DIR ${LIBS_DIR}/catch/src/) # for use in CMakeLists.txt
+# Expose required variable (DOCTEST_INCLUDE_DIR) to parent scope
+ExternalProject_Get_Property(doctest source_dir)
+set(DOCTEST_INCLUDE_DIR ${source_dir}/doctest CACHE INTERNAL "Path to include folder for doctest")
