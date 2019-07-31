@@ -20,13 +20,6 @@ struct Entity
 		bitfield = 0;
 		UUID = uuid;
 	}
-
-	// Makes compiler happy
-	Entity()
-	{
-		bitfield = 0;
-		UUID = 0;
-	}
 };
 
 // This is needed to use Entity as a key in a map.
@@ -122,12 +115,6 @@ inline void ECS::RegisterComponent(T component)
 		{
 			throw std::out_of_range("Exceeded available flags for the bitfield! (max 32 b/c uint32)");
 		}
-
-		//std::cout << "added " << componentName << " to ECS" << std::endl;
-	}
-	else // key already registered!
-	{
-		//std::cout << componentName << " is already a registered component!" << std::endl;
 	}
 }
 
@@ -139,7 +126,6 @@ inline void ECS::AddComponent(Entity entity, T component)
 	container->data[entity] = component;
 	int componentFlag = componentIndex[componentName];
 
-	//entities.insert(std::pair<Entity, bitfield::Bitfield>(entities[entity], componentFlag));
 	components[componentName] = container;
 
 	bool entityFound = false;
@@ -156,9 +142,6 @@ inline void ECS::AddComponent(Entity entity, T component)
 	{
 		throw std::runtime_error("Failed to find entity to add component to");
 	}
-
-	//std::cout << "added data for " << componentName << " to ECS for entity " << entity << std::endl;
-	//std::cout << " container has " << container->data.size() << " components in it" << std::endl;
 }
 
 template<typename T>
@@ -169,7 +152,7 @@ inline T* ECS::GetComponent(Entity entity, T component)
 	
 	for (Entity e : this->entities)
 	{
-		if (e.UUID = entity.UUID)
+		if (e.UUID == entity.UUID)
 		{
 			if (bitfield::Has(e.bitfield, componentFlag))
 			{
@@ -223,13 +206,10 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 		field = bitfield::Set(field, this->componentIndex[name]);
 	}
 
-	// search time
 	std::vector<Entity*> requestedEntities;
 	requestedEntities.reserve(this->entities.size());
-	for (auto e : this->entities) {
-		//std::cout << "  checking entity " << mapEntry.first << std::endl;
+	for (auto& e : this->entities) {
 		if (bitfield::Has(e.bitfield, field)) {
-			//std::cout << "    adding" << std::endl;
 			requestedEntities.emplace_back(&e);
 		}
 	}

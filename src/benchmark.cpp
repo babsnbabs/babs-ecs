@@ -1,26 +1,43 @@
-//#include <entityplus/entity.h>
-//#include <entityx/entityx.h>
 #include <chrono>
 #include <iostream>
 #include <string>
+#include <iomanip>
 
 #include "Manager.hpp"
 
 class Timer {
-	std::chrono::high_resolution_clock::time_point start;
-	std::string name;
 public:
-	Timer(std::string name)
+	std::chrono::milliseconds elapsed;
+	std::chrono::high_resolution_clock::time_point start;
+
+	Timer() : elapsed(std::chrono::milliseconds(0))
 	{
 		this->start = std::chrono::high_resolution_clock::now();
-		this->name = name;
 	}
-	~Timer()
+	
+	void End()
 	{
-		auto end = std::chrono::high_resolution_clock::now();
-		std::cout << this->name << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "\n";
+		this->elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start);
 	}
 };
+
+void printHeader()
+{
+	std::cout << "|-------------------------------------------------------------------------------------------------------- |" << std::endl;
+	std::cout << "|Name" << "\t\t\t" << "Entities" << "\t" << "Iterations" << "\t\t" << "Probability" << "\t" << "Duration(ms)\t\t  |" << std::endl;
+	std::cout << "|-------------------------------------------------------------------------------------------------------- |" << std::endl;
+
+}
+
+void printResults(std::string name, int entities, int iterations, int probability, std::chrono::milliseconds duration)
+{
+	std::cout << "|" << name << "\t" << entities << "\t\t" << iterations << "\t\t\t" << "1/" <<probability << "\t\t\t" << duration.count() << "\t\t  |" << std::endl;
+}
+
+void printFooter()
+{
+	std::cout << "|-------------------------------------------------------------------------------------------------------- |" << std::endl;
+}
 
 struct Identity
 {
@@ -35,13 +52,8 @@ void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 	ecs.RegisterComponent(Identity());
 	ecs.RegisterComponent(Tag());
 
-	//Entity entity1 = ecs.CreateEntity();
-	   //Identity ident{ "babs1" };
-	   //ecs.AddComponent(entity1, ident);
-
-	std::cout << "Babs ECS\n";
 	{
-		Timer timer("Add entities: ");
+		Timer timer;
 		for (int i = 0; i < entityCount; ++i) {
 			auto entity = ecs.CreateEntity();
 			ecs.AddComponent(entity, Identity{ i });
@@ -53,7 +65,8 @@ void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 		}
 	}
 	{
-		Timer timer("For_each entities w/ Identity: ");
+		Timer timer;
+
 		std::uint64_t sum = 0;
 		for (int i = 0; i < iterationCount; ++i) {
 			auto entities = ecs.EntitiesWith(Identity{});
@@ -62,10 +75,12 @@ void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 				sum++;
 			}
 		}
-		std::cout << sum << "\n";
+		timer.End();
+		printResults("entities w / Identity", entityCount, iterationCount, tagProb, timer.elapsed);
+
 	}
 	{
-		Timer timer("For_each entities w/ Tag: ");
+		Timer timer;
 		std::uint64_t sum = 0;
 		for (int i = 0; i < iterationCount; ++i) {
 			auto entities = ecs.EntitiesWith(Tag{});
@@ -74,78 +89,23 @@ void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 				sum++;
 			}
 		}
-		std::cout << sum << "\n";
+
+		printResults("entities w/ Tag", entityCount, iterationCount, tagProb, timer.elapsed);
 	}
 }
 
-// void entPlusTest(int entityCount, int iterationCount, int tagProb) {
-//  using namespace entityplus;
-//  entity_manager<component_list<int>, tag_list<struct Tag>> em;
-//  em.create_grouping<int, Tag>();
-//  std::cout << "EntityPlus\n";
-//  {
-//   Timer timer("Add entities: ");
-//   for (int i = 0; i < entityCount; ++i) {
-//    auto ent = em.create_entity();
-//    ent.add_component<int>(i);
-//    if (i % tagProb == 0)
-//     ent.set_tag<Tag>(true);
-//   }
-//  }
-//  {
-//   Timer timer("For_each entities: ");
-//   std::uint64_t sum = 0;
-//   for (int i = 0; i < iterationCount; ++i) {
-//    em.for_each<Tag, int>([&](auto ent, auto i) {
-//     sum += i;
-//    });
-//   }
-//   std::cout << sum << "\n";
-//  }
-// }
-
-// void entXTest(int entityCount, int iterationCount, int tagProb) {
-//  using namespace entityx;
-//  struct Tag {};
-//  entityx::EntityX ex;
-//  std::cout << "EntityX\n";
-//  {
-//   Timer timer("Add entities: ");
-//   for (int i = 0; i < entityCount; ++i) {
-//    auto ent = ex.entities.create();
-//    ent.assign<int>(i);
-//    if (i % tagProb == 0)
-//     ent.assign<Tag>();
-//   }
-//  }
-//  {
-//   Timer timer("For_each entities: ");
-//   std::uint64_t sum = 0;
-//   for (int i = 0; i < iterationCount; ++i) {
-//    ex.entities.each<Tag, int>([&](auto ent, auto &, auto i) {
-//     sum += i;
-//    });
-//   }
-//   std::cout << sum << "\n";
-//  }
-// }
-
 void runTest(int entityCount, int iterationCount, int tagProb) {
-	std::cout << "Count: " << entityCount
-		<< " ItrCount: " << iterationCount
-		<< " TagProb: " << tagProb << "\n";
 	babsEcsTest(entityCount, iterationCount, tagProb);
-	//entPlusTest(entityCount, iterationCount, tagProb);
-	//std::cout << "\n";
-	//entXTest(entityCount, iterationCount, tagProb);
-	std::cout << "\n\n";
 }
 
 int main() {
+	std::cout << "Running benchmark..." << std::endl << std::endl;
+	printHeader();
 	runTest(1'000, 1'000'000, 3);
-	//runTest(10'000, 1'000'000, 3);
-	//runTest(30'000, 100'000, 3);
-	//runTest(100'000, 100'000, 5);
-	//runTest(10'000, 1'000'000, 1'000);
-	//runTest(100'000, 1'000'000, 1'000);
+	runTest(10'000, 1'000'000, 3);
+	runTest(30'000, 100'000, 3);
+	runTest(100'000, 100'000, 5);
+	runTest(10'000, 1'000'000, 1'000);
+	runTest(100'000, 1'000'000, 1'000);
+	printFooter();
 }
