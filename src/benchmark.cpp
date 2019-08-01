@@ -79,19 +79,6 @@ void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 		printResults("entities w / Identity", entityCount, iterationCount, tagProb, timer.elapsed);
 
 	}
-	{
-		Timer timer;
-		std::uint64_t sum = 0;
-		for (int i = 0; i < iterationCount; ++i) {
-			auto entities = ecs.EntitiesWith(Tag{});
-			for (auto entity : entities)
-			{
-				sum++;
-			}
-		}
-
-		printResults("entities w/ Tag", entityCount, iterationCount, tagProb, timer.elapsed);
-	}
 }
 
 void runTest(int entityCount, int iterationCount, int tagProb) {
