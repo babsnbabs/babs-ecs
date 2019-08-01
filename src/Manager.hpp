@@ -9,6 +9,7 @@
 #include <typeinfo>
 #include <vector>
 
+#include "exceptions/ComponentNotRegisteredException.hpp"
 
 struct Entity
 {
@@ -95,6 +96,19 @@ private:
 
 	template <typename T, typename ...Ts>
 	std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type, Ts... types);
+
+	bool ComponentIsRegistered(std::string componentName) 
+	{
+		for (auto const& component : this->components)
+		{
+			if (component.first == componentName)
+			{
+				return true;
+			}
+		}
+	
+		return false;
+	}
 };
 
 template<typename T>
@@ -122,7 +136,14 @@ template<typename T>
 inline void ECS::AddComponent(Entity entity, T component)
 {
 	std::string componentName = this->GetComponentName(component);
+	
+	if (!this->ComponentIsRegistered(componentName))
+	{
+		throw ComponentNotRegisteredException(componentName);
+	}
+
 	ComponentContainer<T>* container = dynamic_cast<ComponentContainer<T>*>(this->components[componentName]);
+
 	container->data[entity] = component;
 	int componentFlag = componentIndex[componentName];
 
@@ -148,6 +169,12 @@ template<typename T>
 inline T* ECS::GetComponent(Entity entity, T component)
 {
 	std::string componentName = this->GetComponentName(component);
+
+	if (!this->ComponentIsRegistered(componentName))
+	{
+		throw ComponentNotRegisteredException(componentName);
+	}
+
 	int componentFlag = componentIndex[componentName];
 	
 	for (Entity e : this->entities)
@@ -199,6 +226,14 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	// build bitfield flags for this search
 	std::vector<std::string> componentNames;
 	componentNames = this->GetComponentNames(componentNames, std::forward<Ts>(types)...);
+	
+	for (auto componentName : componentNames)
+	{
+		if (!this->ComponentIsRegistered(componentName))
+		{
+			throw ComponentNotRegisteredException(componentName);
+		}
+	}
 
 	bitfield::Bitfield field = 0;
 	for (auto name : componentNames)
