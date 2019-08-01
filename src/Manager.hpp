@@ -9,8 +9,28 @@
 #include <typeinfo>
 #include <vector>
 
-typedef uint32_t Entity;
-	
+
+struct Entity
+{
+	bitfield::Bitfield bitfield;
+	int32_t UUID;
+
+	Entity(uint32_t uuid)
+	{
+		bitfield = 0;
+		UUID = uuid;
+	}
+};
+
+// This is needed to use Entity as a key in a map.
+struct EntityComparer
+{
+	bool operator() (const Entity& lhs, const Entity& rhs) const
+	{
+		return lhs.UUID < rhs.UUID;
+	}
+};
+
 // Exists to satisfying compiler warnings
 class BaseContainer
 {
@@ -26,7 +46,7 @@ class ComponentContainer : public BaseContainer
 public:
 	ComponentContainer() {};
 	virtual ~ComponentContainer() {};
-	std::map<Entity, T> data;
+	std::map<Entity, T, EntityComparer> data;
 };
 
 class ECS {
@@ -39,11 +59,9 @@ public:
 
 	Entity CreateEntity()
 	{
-		Entity e = this->entityIndex;
+		Entity e = Entity(this->entityIndex);
 		this->entityIndex++;
-
-		bitfield::Bitfield bit = 0;
-		this->entities[e] = bit;
+		this->entities.push_back(e);
 
 		return e;
 	}
@@ -58,11 +76,11 @@ public:
 	T* GetComponent(Entity entity, T component);
 
 	template<typename... Ts>
-	std::vector<Entity> EntitiesWith(Ts&&... types);
+	std::vector<Entity*> EntitiesWith(Ts&& ... types);
 private:
-	Entity entityIndex;
+	int32_t entityIndex;
 	bitfield::Bitfield bitIndex;
-	std::map<Entity, bitfield::Bitfield> entities;
+	std::vector<Entity> entities;
 
 	std::map<std::string, BaseContainer*> components;
 	std::map<std::string, bitfield::Bitfield> componentIndex;
@@ -70,13 +88,13 @@ private:
 	template <typename T>
 	std::string GetComponentName(T component);
 
-    std::vector<std::string> GetComponentNames(std::vector<std::string> names);
+	std::vector<std::string> GetComponentNames(std::vector<std::string> names);
 
-    template <typename T>
-    std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type);
+	template <typename T>
+	std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type);
 
-    template <typename T, typename ...Ts>
-    std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type, Ts... types);
+	template <typename T, typename ...Ts>
+	std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type, Ts... types);
 };
 
 template<typename T>
@@ -97,12 +115,6 @@ inline void ECS::RegisterComponent(T component)
 		{
 			throw std::out_of_range("Exceeded available flags for the bitfield! (max 32 b/c uint32)");
 		}
-
-		std::cout << "added " << componentName << " to ECS" << std::endl;
-	}
-	else // key already registered!
-	{
-		std::cout << componentName << " is already a registered component!" << std::endl;
 	}
 }
 
@@ -114,13 +126,22 @@ inline void ECS::AddComponent(Entity entity, T component)
 	container->data[entity] = component;
 	int componentFlag = componentIndex[componentName];
 
-	entities.insert(std::pair<Entity, bitfield::Bitfield>(entities[entity], componentFlag));
 	components[componentName] = container;
 
-	entities[entity] = bitfield::Set(entities[entity], componentFlag);
+	bool entityFound = false;
+	for (Entity& e : this->entities)
+	{
+		if (e.UUID == entity.UUID)
+		{
+			entityFound = true;
+			e.bitfield = bitfield::Set(e.bitfield, componentFlag);
+		}
+	}
 
-	std::cout << "added data for " << componentName << " to ECS for entity " << entity << std::endl;
-	std::cout << " container has " << container->data.size() << " components in it" << std::endl;
+	if (!entityFound)
+	{
+		throw std::runtime_error("Failed to find entity to add component to");
+	}
 }
 
 template<typename T>
@@ -128,11 +149,17 @@ inline T* ECS::GetComponent(Entity entity, T component)
 {
 	std::string componentName = this->GetComponentName(component);
 	int componentFlag = componentIndex[componentName];
-
-	if (bitfield::Has(entities[entity], componentFlag))
+	
+	for (Entity e : this->entities)
 	{
-		ComponentContainer<T>* container = dynamic_cast<ComponentContainer<T>*>(this->components[componentName]);
-		return &container->data[entity];
+		if (e.UUID == entity.UUID)
+		{
+			if (bitfield::Has(e.bitfield, componentFlag))
+			{
+				ComponentContainer<T>* container = dynamic_cast<ComponentContainer<T>*>(this->components[componentName]);
+				return &container->data[entity];
+			}
+		}
 	}
 
 	return NULL;
@@ -140,55 +167,53 @@ inline T* ECS::GetComponent(Entity entity, T component)
 
 std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names)
 {
-    return names;
+	return names;
 }
 
 template <typename T>
 std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, T type)
 {
-    std::string name = this->GetComponentName(std::forward<T>(type));
-    names.push_back(name);
+	std::string name = this->GetComponentName(std::forward<T>(type));
+	names.push_back(name);
 
-    return names;
+	return names;
 }
 
 template <typename T, typename ...Ts>
 std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, T type, Ts... types)
 {
-    std::string name = this->GetComponentName(std::forward<T>(type));
-    names.push_back(name);
-    
-    // recursion basically - we keep showing up in this function, and eventually
-    // we hit the base case of one type and no list of types, so we get sent to the
-    // function above and then everything returns back to the caller.
-    this->GetComponentNames(names, std::forward<Ts>(types)...);
+	std::string name = this->GetComponentName(std::forward<T>(type));
+	names.push_back(name);
 
-    return names;
+	// recursion basically - we keep showing up in this function, and eventually
+	// we hit the base case of one type and no list of types, so we get sent to the
+	// function above and then everything returns back to the caller.
+	this->GetComponentNames(names, std::forward<Ts>(types)...);
+
+	return names;
 }
 
 template<typename ...Ts>
-inline std::vector<Entity> ECS::EntitiesWith(Ts&& ...types)
+inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 {
-    // build bitfield flags for this search
-    std::vector<std::string> componentNames;
-    componentNames = this->GetComponentNames(componentNames, std::forward<Ts>(types)...);
+	// build bitfield flags for this search
+	std::vector<std::string> componentNames;
+	componentNames = this->GetComponentNames(componentNames, std::forward<Ts>(types)...);
 
-    bitfield::Bitfield field = 0;
-    for (auto name : componentNames)
-    {
-        field = bitfield::Set(field, this->componentIndex[name]);
-    }
+	bitfield::Bitfield field = 0;
+	for (auto name : componentNames)
+	{
+		field = bitfield::Set(field, this->componentIndex[name]);
+	}
 
-    // search time
-    std::vector<Entity> requestedEntities;
-    for (auto mapEntry : this->entities) {
-        std::cout << "  checking entity " << mapEntry.first << std::endl;
-        if (bitfield::Has(mapEntry.second, field)) {
-            std::cout << "    adding" << std::endl;
-            requestedEntities.push_back(mapEntry.first);
-        }
-    }
-		
+	std::vector<Entity*> requestedEntities;
+	requestedEntities.reserve(this->entities.size());
+	for (auto& e : this->entities) {
+		if (bitfield::Has(e.bitfield, field)) {
+			requestedEntities.emplace_back(&e);
+		}
+	}
+
 	return requestedEntities;
 }
 

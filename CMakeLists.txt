@@ -46,5 +46,12 @@ add_executable(babs-ecs
     src/main.cpp
     ${TESTED_SOURCES}
 )
+
+# benchmark
+add_executable(babs-benchmark
+    src/benchmark.cpp
+    ${TESTED_SOURCES}
+)
+
 add_dependencies(babs-ecs tests)
 

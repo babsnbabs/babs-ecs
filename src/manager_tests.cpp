@@ -32,11 +32,20 @@ TEST_CASE("manager CREATE")
 	Entity e3 = ecs.CreateEntity();
 	Entity e4 = ecs.CreateEntity();
 
-	// e0 will equal 0 and fail the null check.
-	REQUIRE(e1 != NULL);
-	REQUIRE(e2 != NULL);
-	REQUIRE(e3 != NULL);
-	REQUIRE(e4 != NULL);
+	REQUIRE(e0.bitfield == 0);
+	REQUIRE(e0.UUID == 0);
+
+	REQUIRE(e1.bitfield == 0);
+	REQUIRE(e1.UUID == 1);
+
+	REQUIRE(e2.bitfield == 0);
+	REQUIRE(e2.UUID == 2);
+
+	REQUIRE(e3.bitfield == 0);
+	REQUIRE(e3.UUID == 3);
+
+	REQUIRE(e4.bitfield == 0);
+	REQUIRE(e4.UUID == 4);
 }
 
 TEST_CASE("Manager ENTITIES WITH")
