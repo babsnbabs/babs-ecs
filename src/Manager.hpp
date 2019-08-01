@@ -9,6 +9,7 @@
 #include <typeinfo>
 #include <vector>
 
+#include "exceptions/ComponentNotRegisteredException.hpp"
 
 struct Entity
 {
