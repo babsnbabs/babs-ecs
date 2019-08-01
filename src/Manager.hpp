@@ -23,7 +23,6 @@ struct Entity
 	}
 };
 
-// This is needed to use Entity as a key in a map.
 struct EntityComparer
 {
 	bool operator() (const Entity& lhs, const Entity& rhs) const
@@ -32,7 +31,6 @@ struct EntityComparer
 	}
 };
 
-// Exists to satisfying compiler warnings
 class BaseContainer
 {
 public:
@@ -40,7 +38,6 @@ public:
 	virtual ~BaseContainer() {};
 };
 
-// This would be the concrete type created by RegisterComponent and inserted into the map
 template <typename T>
 class ComponentContainer : public BaseContainer
 {
@@ -200,15 +197,10 @@ std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, 
 	std::string name = this->GetComponentName(std::forward<T>(type));
 	names.push_back(name);
 
-	// recursion basically - we keep showing up in this function, and eventually
-	// we hit the base case of one type and no list of types, so we get sent to the
-	// function above and then everything returns back to the caller.
+	// Continue getting component neames until we are out of template arguments and return the list
 	return this->GetComponentNames(names, std::forward<Ts>(types)...);
-
-	//return names;
 }
 
-/// USED
 template<typename ...Ts>
 inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 {
