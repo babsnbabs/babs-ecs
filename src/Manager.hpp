@@ -91,9 +91,6 @@ private:
 
 	std::vector<std::string> GetComponentNames(std::vector<std::string> names);
 
-	template <typename T>
-	std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type);
-
 	template <typename T, typename ...Ts>
 	std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type, Ts... types);
 
@@ -197,15 +194,6 @@ std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names)
 	return names;
 }
 
-template <typename T>
-std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, T type)
-{
-	std::string name = this->GetComponentName(std::forward<T>(type));
-	names.push_back(name);
-
-	return names;
-}
-
 template <typename T, typename ...Ts>
 std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, T type, Ts... types)
 {
@@ -215,11 +203,12 @@ std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, 
 	// recursion basically - we keep showing up in this function, and eventually
 	// we hit the base case of one type and no list of types, so we get sent to the
 	// function above and then everything returns back to the caller.
-	this->GetComponentNames(names, std::forward<Ts>(types)...);
+	return this->GetComponentNames(names, std::forward<Ts>(types)...);
 
-	return names;
+	//return names;
 }
 
+/// USED
 template<typename ...Ts>
 inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 {
