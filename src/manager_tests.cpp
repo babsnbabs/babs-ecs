@@ -1,11 +1,18 @@
 #include "doctest.h"
 
-#include "Manager.hpp"
 #include <string>
+
+#include "Manager.hpp"
+#include "exceptions/ComponentNotRegisteredException.hpp"
 
 struct Identity
 {
 	std::string name;
+};
+
+struct AI
+{
+	std::string difficulty;
 };
 
 struct Health
@@ -96,4 +103,34 @@ TEST_CASE("Manager Happy Path")
 	REQUIRE(storedHp != nullptr);
 	REQUIRE(storedHp->current == hp.current);
 	REQUIRE(storedHp->max == hp.max);
+}
+
+TEST_CASE("Manager AddComponent with unregistered component throws")
+{
+	ECS ecs;
+	Entity e = ecs.CreateEntity();
+
+	CHECK_THROWS_AS(ecs.AddComponent(e, Health()), const ComponentNotRegisteredException);
+}
+
+TEST_CASE("Manager GetComponent with unregistered component throws")
+{
+	ECS ecs;
+	Entity e = ecs.CreateEntity();
+
+	CHECK_THROWS_AS(ecs.GetComponent(e, Health()), const ComponentNotRegisteredException);
+}
+
+TEST_CASE("Manager Entities_With with unregistered component throws")
+{
+	ECS ecs;
+
+	ecs.RegisterComponent(Health());
+	ecs.RegisterComponent(Identity());
+
+	Entity e = ecs.CreateEntity();
+
+	// Should throw because AI is not registered
+	// However, it doesn't throw at all because it only "sees" health in EntitiesWith - after all the recursion.
+	CHECK_THROWS_AS(ecs.EntitiesWith(Health{}, Identity{}, AI{}), const ComponentNotRegisteredException);
 }
