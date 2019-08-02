@@ -9,6 +9,7 @@
 #include <typeinfo>
 #include <vector>
 
+#include "exceptions/ComponentNotRegisteredException.hpp"
 
 struct Entity
 {
@@ -97,6 +98,19 @@ private:
 
 	template <typename T, typename ...Ts>
 	std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type, Ts... types);
+
+	bool ComponentIsRegistered(std::string componentName)
+	{
+		for (auto const& component : this->components)
+		{
+			if (component.first == componentName)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 };
 
 template<typename T>
@@ -124,6 +138,12 @@ template<typename T>
 inline void ECS::AddComponent(Entity entity, T component)
 {
 	std::string componentName = this->GetComponentName(component);
+
+	if (!this->ComponentIsRegistered(componentName))
+	{
+		throw ComponentNotRegisteredException(componentName);
+	}
+
 	ComponentContainer<T>* container = dynamic_cast<ComponentContainer<T>*>(this->components[componentName]);
 	container->data[entity] = component;
 	int componentFlag = componentIndex[componentName];
@@ -165,6 +185,11 @@ template<typename T>
 inline T* ECS::GetComponent(Entity entity, T component)
 {
 	std::string componentName = this->GetComponentName(component);
+	if (!this->ComponentIsRegistered(componentName))
+	{
+		throw ComponentNotRegisteredException(componentName);
+	}
+
 	int componentFlag = componentIndex[componentName];
 	
 	for (Entity e : this->entities)
@@ -202,9 +227,7 @@ std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, 
 	std::string name = this->GetComponentName(std::forward<T>(type));
 	names.push_back(name);
 
-	// recursion basically - we keep showing up in this function, and eventually
-	// we hit the base case of one type and no list of types, so we get sent to the
-	// function above and then everything returns back to the caller.
+	// Continue getting component neames until we are out of template arguments and return the list
 	return this->GetComponentNames(names, std::forward<Ts>(types)...);
 }
 
@@ -214,6 +237,14 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	// build bitfield flags for this search
 	std::vector<std::string> componentNames;
 	componentNames = this->GetComponentNames(componentNames, std::forward<Ts>(types)...);
+
+	for (auto componentName : componentNames)
+	{
+		if (!this->ComponentIsRegistered(componentName))
+		{
+			throw ComponentNotRegisteredException(componentName);
+		}
+	}
 
 	bitfield::Bitfield field = 0;
 	for (auto name : componentNames)
