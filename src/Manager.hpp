@@ -85,6 +85,8 @@ private:
 	std::map<std::string, BaseContainer*> components;
 	std::map<std::string, bitfield::Bitfield> componentIndex;
 
+	std::map<std::string, std::vector<Entity>> individualComponentVecs;
+
 	template <typename T>
 	std::string GetComponentName(T component);
 
@@ -135,6 +137,19 @@ inline void ECS::AddComponent(Entity entity, T component)
 		{
 			entityFound = true;
 			e.bitfield = bitfield::Set(e.bitfield, componentFlag);
+
+			auto iter = this->individualComponentVecs.find(componentName);
+			if (iter != this->individualComponentVecs.end())
+			{
+				iter->second.push_back(e);
+			}
+			else
+			{
+				std::vector<Entity> entityList;
+				entityList.push_back(e);
+				this->individualComponentVecs.insert(std::pair<std::string, std::vector<Entity>>(componentName, entityList));
+				//this->individualComponentVecs.insert(std::make_pair(componentName, e));
+			}
 		}
 	}
 
@@ -142,6 +157,8 @@ inline void ECS::AddComponent(Entity entity, T component)
 	{
 		throw std::runtime_error("Failed to find entity to add component to");
 	}
+
+
 }
 
 template<typename T>
@@ -188,9 +205,7 @@ std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, 
 	// recursion basically - we keep showing up in this function, and eventually
 	// we hit the base case of one type and no list of types, so we get sent to the
 	// function above and then everything returns back to the caller.
-	this->GetComponentNames(names, std::forward<Ts>(types)...);
-
-	return names;
+	return this->GetComponentNames(names, std::forward<Ts>(types)...);
 }
 
 template<typename ...Ts>
