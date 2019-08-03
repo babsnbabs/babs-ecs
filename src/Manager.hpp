@@ -236,6 +236,17 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	// build bitfield flags for this search
 	std::vector<std::string> componentNames;
 	componentNames = this->GetComponentNames(componentNames, std::forward<Ts>(types)...);
+	
+	if (componentNames.size() == 0)
+	{
+		// Asking for all entities
+		std::vector<Entity*> requestedEntities;
+		for (auto e : this->entities)
+		{
+			requestedEntities.push_back(&e);
+		}
+		return requestedEntities;
+	}
 
 	std::vector<std::tuple<std::string, int>> componentListSizes;
 	for (auto componentName : componentNames)
