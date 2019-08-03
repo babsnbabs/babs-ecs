@@ -255,7 +255,7 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 		field = bitfield::Set(field, this->componentIndex[name]);
 	}
 
-	std::string smallestComponentList = std::get<0>(*std::min_element(begin(requestedListAndSize), end(requestedListAndSize), [](auto lhs, auto rhs) {return std::get<1>(lhs) < std::get<1>(rhs); }));
+	std::string smallestComponentList = std::get<0>(*std::min_element(begin(componentListSizes), end(componentListSizes), [](auto lhs, auto rhs) {return std::get<1>(lhs) < std::get<1>(rhs); }));
 	auto entitySearchVector = this->individualComponentVecs[smallestComponentList];
 
 	std::vector<Entity*> requestedEntities;
