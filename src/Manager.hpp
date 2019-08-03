@@ -257,7 +257,7 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 		}
 
 		auto vec = &this->individualComponentVecs[componentName];
-		componentListSizes.push_back({ componentName, vec->size() });
+		componentListSizes.push_back(std::make_tuple(componentName, vec->size()));
 	}
 
 	bitfield::Bitfield field = 0;
