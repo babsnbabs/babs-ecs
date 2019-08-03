@@ -8,7 +8,8 @@
 #include <set>
 #include <typeinfo>
 #include <vector>
-
+#include <tuple>
+#include <algorithm>
 #include "exceptions/ComponentNotRegisteredException.hpp"
 
 struct Entity
@@ -177,8 +178,6 @@ inline void ECS::AddComponent(Entity entity, T component)
 	{
 		throw std::runtime_error("Failed to find entity to add component to");
 	}
-
-
 }
 
 template<typename T>
@@ -191,7 +190,7 @@ inline T* ECS::GetComponent(Entity entity, T component)
 	}
 
 	int componentFlag = componentIndex[componentName];
-	
+
 	for (Entity e : this->entities)
 	{
 		if (e.UUID == entity.UUID)
@@ -238,12 +237,16 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	std::vector<std::string> componentNames;
 	componentNames = this->GetComponentNames(componentNames, std::forward<Ts>(types)...);
 
+	std::vector<std::tuple<std::string, int>> componentListSizes;
 	for (auto componentName : componentNames)
 	{
 		if (!this->ComponentIsRegistered(componentName))
 		{
 			throw ComponentNotRegisteredException(componentName);
 		}
+
+		auto vec = &this->individualComponentVecs[componentName];
+		componentListSizes.push_back({ componentName, vec->size() });
 	}
 
 	bitfield::Bitfield field = 0;
@@ -252,9 +255,12 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 		field = bitfield::Set(field, this->componentIndex[name]);
 	}
 
+	std::string smallestComponentList = std::get<0>(*std::min_element(begin(requestedListAndSize), end(requestedListAndSize), [](auto lhs, auto rhs) {return std::get<1>(lhs) < std::get<1>(rhs); }));
+	auto entitySearchVector = this->individualComponentVecs[smallestComponentList];
+
 	std::vector<Entity*> requestedEntities;
-	requestedEntities.reserve(this->entities.size());
-	for (auto& e : this->entities) {
+	requestedEntities.reserve(entitySearchVector.size());
+	for (auto& e : entitySearchVector) {
 		if (bitfield::Has(e.bitfield, field)) {
 			requestedEntities.emplace_back(&e);
 		}

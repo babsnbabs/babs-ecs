@@ -31,7 +31,7 @@ void printHeader()
 
 void printResults(std::string name, int entities, int iterations, int probability, std::chrono::milliseconds duration)
 {
-	std::cout << "|" << name << "\t" << entities << "\t\t" << iterations << "\t\t\t" << "1/" <<probability << "\t\t\t" << duration.count() << "\t\t  |" << std::endl;
+	std::cout << "|" << name << "\t\t" << entities << "\t\t" << iterations << "\t\t\t" << "1/" <<probability << "\t\t\t" << duration.count() << "\t\t  |" << std::endl;
 }
 
 void printFooter()
@@ -67,17 +67,16 @@ void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 	{
 		Timer timer;
 
-		std::uint64_t sum = 0;
-		for (int i = 0; i < iterationCount; ++i) {
-			auto entities = ecs.EntitiesWith(Identity{});
-			for (auto entity : entities)
-			{
-				sum++;
-			}
-		}
-		timer.End();
-		printResults("entities w / Identity", entityCount, iterationCount, tagProb, timer.elapsed);
-
+        std::uint64_t sum = 0;
+        for (int i = 0; i < iterationCount; ++i) {
+            auto entities = ecs.EntitiesWith(Identity{}, Tag{});
+            for (auto entity : entities)
+            {
+                sum++;
+            }
+        }
+        timer.End();
+        printResults("Identity + Tag", entityCount, iterationCount, tagProb, timer.elapsed);
 	}
 }
 
