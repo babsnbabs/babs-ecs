@@ -195,7 +195,7 @@ inline T* ECS::GetComponent(Entity entity, T component)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names)
