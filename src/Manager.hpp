@@ -92,25 +92,17 @@ private:
 	template <typename T>
 	std::string GetComponentName(T component);
 
-	std::vector<std::string> GetComponentNames(std::vector<std::string> names);
+	std::vector<std::string>* GetComponentNames(std::vector<std::string>* names);
 
 	template <typename T>
-	std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type);
+	std::vector<std::string>* GetComponentNames(std::vector<std::string>* names, T type);
 
 	template <typename T, typename ...Ts>
-	std::vector<std::string> GetComponentNames(std::vector<std::string> names, T type, Ts... types);
+	std::vector<std::string>* GetComponentNames(std::vector<std::string>* names, T type, Ts... types);
 
 	bool ComponentIsRegistered(std::string componentName)
 	{
-		for (auto const& component : this->components)
-		{
-			if (component.first == componentName)
-			{
-				return true;
-			}
-		}
-
-		return false;
+		return (this->components.count(componentName) > 0);
 	}
 };
 
@@ -206,25 +198,25 @@ inline T* ECS::GetComponent(Entity entity, T component)
 	return NULL;
 }
 
-std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names)
+std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names)
 {
 	return names;
 }
 
 template <typename T>
-std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, T type)
+std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type)
 {
 	std::string name = this->GetComponentName(std::forward<T>(type));
-	names.push_back(name);
+	names->push_back(name);
 
 	return names;
 }
 
 template <typename T, typename ...Ts>
-std::vector<std::string> ECS::GetComponentNames(std::vector<std::string> names, T type, Ts... types)
+std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type, Ts... types)
 {
 	std::string name = this->GetComponentName(std::forward<T>(type));
-	names.push_back(name);
+	names->push_back(name);
 
 	// Continue getting component neames until we are out of template arguments and return the list
 	return this->GetComponentNames(names, std::forward<Ts>(types)...);
@@ -235,7 +227,7 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 {
 	// build bitfield flags for this search
 	std::vector<std::string> componentNames;
-	componentNames = this->GetComponentNames(componentNames, std::forward<Ts>(types)...);
+	this->GetComponentNames(&componentNames, std::forward<Ts>(types)...);
 	
 	if (componentNames.size() == 0)
 	{
