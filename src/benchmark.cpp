@@ -87,11 +87,11 @@ void runTest(int entityCount, int iterationCount, int tagProb) {
 int main() {
 	std::cout << "Running benchmark..." << std::endl << std::endl;
 	printHeader();
-	runTest(1'000, 1'000'000, 3);
-	runTest(10'000, 1'000'000, 3);
-	runTest(30'000, 100'000, 3);
-	runTest(100'000, 100'000, 5);
-	runTest(10'000, 1'000'000, 1'000);
-	runTest(100'000, 1'000'000, 1'000);
+	runTest(1'000, 100'000, 3);
+	runTest(10'000, 100'000, 3);
+	runTest(30'000, 10'000, 3);
+	runTest(100'000, 10'000, 5);
+	runTest(10'000, 100'000, 1'000);
+	runTest(100'000, 100'000, 1'000);
 	printFooter();
 }
