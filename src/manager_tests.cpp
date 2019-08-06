@@ -145,14 +145,24 @@ TEST_CASE("manager REMOVE COMPONENT")
 	Identity e0Ident = Identity();
 	e0Ident.name = "babs2";
 
+	Identity e1Ident = Identity();
+	e1Ident.name = "babs1";
+
 	Health e0Health = Health();
 	e0Health.current = 100;
 	e0Health.max = 100;
 
-	Entity e0 = ecs.CreateEntity();
+	Health e1Health = Health();
+	e1Health.current = 90;
+	e1Health.max = 90;
 
+	Entity e0 = ecs.CreateEntity();
+	Entity e1 = ecs.CreateEntity();
 	ecs.AddComponent(e0, e0Ident);
 	ecs.AddComponent(e0, e0Health);
+
+	ecs.AddComponent(e1, e1Ident);
+	ecs.AddComponent(e1, e1Health);
 
 	// has Health
 	auto health = ecs.GetComponent(e0, Health());
@@ -169,4 +179,8 @@ TEST_CASE("manager REMOVE COMPONENT")
 	//still has Identity
 	auto identity = ecs.GetComponent(e0, Identity());
 	REQUIRE(identity->name == "babs2");
+	
+	auto entitiesWithHealth = ecs.EntitiesWith(Health());
+
+	REQUIRE(entitiesWithHealth.size() == 1);
 }

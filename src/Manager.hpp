@@ -194,17 +194,24 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 			entityFound = true;
 			e.bitfield = bitfield::Clear(e.bitfield, componentFlag);
 
-			auto iter = this->individualComponentVecs.find(componentName);
-			if (iter != this->individualComponentVecs.end())
+			auto componentVector = this->individualComponentVecs.find(componentName);
+			
+			for (std::vector<Entity>::iterator it = componentVector->second.begin(); it != componentVector->second.end(); ++it)
 			{
-				this->individualComponentVecs.erase(iter->first);
+				if (it->UUID == e.UUID)
+				{
+					componentVector->second.erase(it);
+					break;
+				}
 			}
+
+			break;
 		}
 	}
 
 	if (!entityFound)
 	{
-		throw std::runtime_error("Failed to find entity to add component to");
+		throw std::runtime_error("Failed to find entity to remove component from");
 	}
 }
 
