@@ -134,3 +134,39 @@ TEST_CASE("Manager Entities_With with unregistered component throws")
 	// However, it doesn't throw at all because it only "sees" health in EntitiesWith - after all the recursion.
 	CHECK_THROWS_AS(ecs.EntitiesWith(Health{}, Identity{}, AI{}), const ComponentNotRegisteredException);
 }
+
+TEST_CASE("manager REMOVE COMPONENT")
+{
+	ECS ecs;
+
+	ecs.RegisterComponent(Identity());
+	ecs.RegisterComponent(Health());
+
+	Identity e0Ident = Identity();
+	e0Ident.name = "babs2";
+
+	Health e0Health = Health();
+	e0Health.current = 100;
+	e0Health.max = 100;
+
+	Entity e0 = ecs.CreateEntity();
+
+	ecs.AddComponent(e0, e0Ident);
+	ecs.AddComponent(e0, e0Health);
+
+	// has Health
+	auto health = ecs.GetComponent(e0, Health());
+	REQUIRE(e0Health.current == health->current);
+	REQUIRE(e0Health.max == health->max);
+
+	ecs.RemoveComponent(e0, Health());
+
+	// does not have health anymore
+	auto noHealth = ecs.GetComponent(e0, Health());
+
+	REQUIRE(noHealth == nullptr);
+
+	//still has Identity
+	auto identity = ecs.GetComponent(e0, Identity());
+	REQUIRE(identity->name == "babs2");
+}

@@ -75,6 +75,9 @@ public:
 	void AddComponent(Entity entity, T component);
 
 	template <typename T>
+	void RemoveComponent(Entity entity, T component);
+
+	template <typename T>
 	T* GetComponent(Entity entity, T component);
 
 	template<typename... Ts>
@@ -161,6 +164,40 @@ inline void ECS::AddComponent(Entity entity, T component)
 				std::vector<Entity> entityList;
 				entityList.push_back(e);
 				this->individualComponentVecs.insert(std::pair<std::string, std::vector<Entity>>(componentName, entityList));
+			}
+		}
+	}
+
+	if (!entityFound)
+	{
+		throw std::runtime_error("Failed to find entity to add component to");
+	}
+}
+
+template<typename T>
+inline void ECS::RemoveComponent(Entity entity, T component)
+{
+	std::string componentName = this->GetComponentName(component);
+
+	if (!this->ComponentIsRegistered(componentName))
+	{
+		throw ComponentNotRegisteredException(componentName);
+	}
+
+	int componentFlag = componentIndex[componentName];
+
+	bool entityFound = false;
+	for (Entity& e : this->entities)
+	{
+		if (e.UUID == entity.UUID)
+		{
+			entityFound = true;
+			e.bitfield = bitfield::Clear(e.bitfield, componentFlag);
+
+			auto iter = this->individualComponentVecs.find(componentName);
+			if (iter != this->individualComponentVecs.end())
+			{
+				this->individualComponentVecs.erase(iter->first);
 			}
 		}
 	}
