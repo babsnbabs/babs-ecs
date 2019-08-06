@@ -161,7 +161,6 @@ inline void ECS::AddComponent(Entity entity, T component)
 				std::vector<Entity> entityList;
 				entityList.push_back(e);
 				this->individualComponentVecs.insert(std::pair<std::string, std::vector<Entity>>(componentName, entityList));
-				//this->individualComponentVecs.insert(std::make_pair(componentName, e));
 			}
 		}
 	}
