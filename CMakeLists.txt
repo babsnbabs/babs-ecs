@@ -38,6 +38,7 @@ add_executable(tests
     ${TESTED_SOURCES}
 	src/bitfield_tests.cpp
 	src/manager_tests.cpp
+	src/pubsub/eventmanager_tests.cpp
 )
 add_dependencies(tests doctest)
 
