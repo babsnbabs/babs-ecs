@@ -21,116 +21,141 @@ struct Health
 	int current;
 };
 
-TEST_CASE("manager REGISTER")
+TEST_SUITE("Manager Setup")
 {
-	ECS ecs;
+    TEST_CASE("CreateEntity returns componentless, unique entities")
+    {
+        ECS ecs;
 
-	ecs.RegisterComponent(Identity());
-	ecs.RegisterComponent(Health());
+        Entity e0 = ecs.CreateEntity();
+        Entity e1 = ecs.CreateEntity();
+        ecs.CreateEntity(); // 2
+        ecs.CreateEntity(); // 3
+        Entity e4 = ecs.CreateEntity();
+
+        REQUIRE(e0.bitfield == 0);
+        REQUIRE(e0.UUID == 0);
+
+        REQUIRE(e1.bitfield == 0);
+        REQUIRE(e1.UUID == 1);
+
+        REQUIRE(e4.bitfield == 0);
+        REQUIRE(e4.UUID == 4);
+    }
 }
 
-TEST_CASE("manager CREATE")
+TEST_SUITE("Manager Components")
 {
-	ECS ecs;
+    ECS ecs;
+    Entity e = ecs.CreateEntity();
 
-	Entity e0 = ecs.CreateEntity();
-	Entity e1 = ecs.CreateEntity();
-	Entity e2 = ecs.CreateEntity();
-	Entity e3 = ecs.CreateEntity();
-	Entity e4 = ecs.CreateEntity();
+    TEST_CASE("AddComponent with unregistered component should throw")
+    {
+        CHECK_THROWS_AS(ecs.AddComponent(e, Health()), const ComponentNotRegisteredException);
+    }
 
-	REQUIRE(e0.bitfield == 0);
-	REQUIRE(e0.UUID == 0);
+    TEST_CASE("AddComponent works after component is registered")
+    {
+        ecs.RegisterComponent(Health());
+        CHECK_NOTHROW(ecs.AddComponent(e, Health{10, 5}));
+    }
 
-	REQUIRE(e1.bitfield == 0);
-	REQUIRE(e1.UUID == 1);
+    TEST_CASE("GetComponent returns expected data")
+    {
+        Health* h = ecs.GetComponent(e, Health());
+        REQUIRE(h->max == 10);
+        REQUIRE(h->current == 5);
+    }
 
-	REQUIRE(e2.bitfield == 0);
-	REQUIRE(e2.UUID == 2);
+    TEST_CASE("Modified component data persists")
+    {
+        Health* h = ecs.GetComponent(e, Health());
+        h->max = 15;
+        h->current = 12;
 
-	REQUIRE(e3.bitfield == 0);
-	REQUIRE(e3.UUID == 3);
+        h = ecs.GetComponent(e, Health());
+        REQUIRE(h->max == 15);
+        REQUIRE(h->current == 12);
+    }
 
-	REQUIRE(e4.bitfield == 0);
-	REQUIRE(e4.UUID == 4);
+    TEST_CASE("GetComponent with unregistered component throws")
+    {
+        CHECK_THROWS_AS(ecs.GetComponent(e, Identity()), const ComponentNotRegisteredException);
+    }
 }
 
-TEST_CASE("Manager ENTITIES WITH")
+TEST_SUITE("Manager Searching")
 {
-	ECS ecs;
+    ECS ecs;
 
-	ecs.RegisterComponent(Identity());
-	ecs.RegisterComponent(Health());
+    TEST_CASE("EntitiesWith finds 1 entity with Identity")
+    {
+        ecs.RegisterComponent(Identity());
+        ecs.RegisterComponent(Health());
 
-    // set up entity 1
-	Entity entity1 = ecs.CreateEntity();
+        // set up entity 1
+        Entity entity1 = ecs.CreateEntity();
 
-    Identity ident{ "babs1" };
-    ecs.AddComponent(entity1, ident);
+        Identity ident{ "babs1" };
+        ecs.AddComponent(entity1, ident);
 
-	Health hp1{ 100, 44 };
-	ecs.AddComponent(entity1, hp1);
+        Health hp1{ 100, 44 };
+        ecs.AddComponent(entity1, hp1);
 
-    // set up entity 2
-	Entity entity2 = ecs.CreateEntity();
-    Health hp2{ 50, 22 };
-	ecs.AddComponent(entity2, hp2);
+        // set up entity 2
+        Entity entity2 = ecs.CreateEntity();
+        Health hp2{ 50, 22 };
+        ecs.AddComponent(entity2, hp2);
 
-    // set up entity 3
-    Entity entity3 = ecs.CreateEntity();
+        // set up entity 3
+        Entity entity3 = ecs.CreateEntity();
 
-    // run a couple searches based on the above entities
-    REQUIRE(ecs.EntitiesWith(Identity{}).size() == 1);
-    REQUIRE(ecs.EntitiesWith(Health{}).size() == 2);
-    REQUIRE(ecs.EntitiesWith().size() == 3);
+        // run a couple searches based on the above entities
+        REQUIRE(ecs.EntitiesWith(Identity{}).size() == 1);
+    }
+
+    TEST_CASE("EntitysWith finds 2 entities with Health")
+    {
+        REQUIRE(ecs.EntitiesWith(Health{}).size() == 2);
+    }
+
+    TEST_CASE("EntitiesWith finds all entities when no components are specified")
+    {
+        REQUIRE(ecs.EntitiesWith().size() == 3);
+    }
+
+    TEST_CASE("EntitiesWith with unregistered component should throw")
+    {
+        ECS ecs;
+
+        ecs.RegisterComponent(Health());
+        ecs.RegisterComponent(Identity());
+
+        Entity e = ecs.CreateEntity();
+
+        // Should throw because AI is not registered
+        // However, it doesn't throw at all because it only "sees" health in EntitiesWith - after all the recursion.
+        CHECK_THROWS_AS(ecs.EntitiesWith(Health{}, Identity{}, AI{}), const ComponentNotRegisteredException);
+    }
 }
 
+// given all the above tests pass, we would expect this typical use case to pass
 TEST_CASE("Manager Happy Path")
 {
-	ECS ecs;
+    ECS ecs;
 
-	ecs.RegisterComponent(Identity());
-	ecs.RegisterComponent(Health());
+    ecs.RegisterComponent(Identity());
+    ecs.RegisterComponent(Health());
 
-	Entity entity1 = ecs.CreateEntity();
+    Entity entity1 = ecs.CreateEntity();
 
-	Health hp{ 100, 44 };
-	ecs.AddComponent(entity1, hp);
+    Health hp{ 100, 44 };
+    ecs.AddComponent(entity1, hp);
 
-	// Getting component
-	Health* storedHp = ecs.GetComponent(entity1, Health());
-	
-	REQUIRE(storedHp != nullptr);
-	REQUIRE(storedHp->current == hp.current);
-	REQUIRE(storedHp->max == hp.max);
-}
-
-TEST_CASE("Manager AddComponent with unregistered component throws")
-{
-	ECS ecs;
-	Entity e = ecs.CreateEntity();
-
-	CHECK_THROWS_AS(ecs.AddComponent(e, Health()), const ComponentNotRegisteredException);
-}
-
-TEST_CASE("Manager GetComponent with unregistered component throws")
-{
-	ECS ecs;
-	Entity e = ecs.CreateEntity();
-
-	CHECK_THROWS_AS(ecs.GetComponent(e, Health()), const ComponentNotRegisteredException);
-}
-
-TEST_CASE("Manager Entities_With with unregistered component throws")
-{
-	ECS ecs;
-
-	ecs.RegisterComponent(Health());
-	ecs.RegisterComponent(Identity());
-
-	Entity e = ecs.CreateEntity();
-
-	// Should throw because AI is not registered
-	// However, it doesn't throw at all because it only "sees" health in EntitiesWith - after all the recursion.
-	CHECK_THROWS_AS(ecs.EntitiesWith(Health{}, Identity{}, AI{}), const ComponentNotRegisteredException);
+    // Getting component
+    Health* storedHp = ecs.GetComponent(entity1, Health());
+    
+    REQUIRE(storedHp != nullptr);
+    REQUIRE(storedHp->current == hp.current);
+    REQUIRE(storedHp->max == hp.max);
 }
