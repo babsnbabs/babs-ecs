@@ -37,11 +37,12 @@ struct EntityComparer
 class BaseContainer
 {
 public:
-	BaseContainer() {  };
+	BaseContainer() {};
 	virtual ~BaseContainer() {};
 };
 
-// This would be the concrete type created by RegisterComponent and inserted into the map
+// This would be the concrete type created by RegisterComponent and inserted into the map.
+// This container will hold all of the component data for a specific component type.
 template <typename T>
 class ComponentContainer : public BaseContainer
 {
@@ -51,6 +52,7 @@ public:
 	std::map<Entity, T, EntityComparer> data;
 };
 
+// ECS is the manager of the whole dealio.
 class ECS {
 public:
 	ECS()
@@ -59,6 +61,7 @@ public:
 		this->entityIndex = 0;
 	}
 
+    // CreateEntity will initialize and return a new entity with no components.
 	Entity CreateEntity()
 	{
 		Entity e = Entity(this->entityIndex);
@@ -106,6 +109,9 @@ private:
 	}
 };
 
+// RegisterComponent will let ECS know of a new component type it needs to keep track of.
+//
+// Until this is called, components cannot be added/retrieved.
 template<typename T>
 inline void ECS::RegisterComponent(T component)
 {
@@ -127,6 +133,7 @@ inline void ECS::RegisterComponent(T component)
 	}
 }
 
+// AddComponent will add the component to the entity. It can be retrieved later with ecs.GetComponent(...)
 template<typename T>
 inline void ECS::AddComponent(Entity entity, T component)
 {
@@ -171,6 +178,7 @@ inline void ECS::AddComponent(Entity entity, T component)
 	}
 }
 
+// GetComponent will return a pointer to the entities component data. Modifications to the component will persist.
 template<typename T>
 inline T* ECS::GetComponent(Entity entity, T component)
 {
@@ -197,11 +205,14 @@ inline T* ECS::GetComponent(Entity entity, T component)
 	return nullptr;
 }
 
+// This is the base case of the GetComponentNames recursion, it exists only to stop the recursion.
 std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names)
 {
 	return names;
 }
 
+// This ends up being either the entry point and/or 2nd to last case of the GetComponentNames recursion.
+// It will call the function above.
 template <typename T>
 std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type)
 {
@@ -211,6 +222,8 @@ std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names
 	return names;
 }
 
+// This is an entry point for the GetComponentNames recursion. It will call of version of itself
+// or the function above.
 template <typename T, typename ...Ts>
 std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type, Ts... types)
 {
@@ -221,6 +234,11 @@ std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names
 	return this->GetComponentNames(names, std::forward<Ts>(types)...);
 }
 
+// Returns a list of Entity pointers of entities matching the provided list of component types.
+//
+// If no component types are provided, all entities will be returned.
+// 
+// Typical usage: auto entities = ecs.EntitiesWith(Identity(), Health());
 template<typename ...Ts>
 inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 {
@@ -271,6 +289,8 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	return requestedEntities;
 }
 
+// Returns the compiler created string for this component. We don't actually care what the
+// string is, but generally it seems to match the type name.
 template<typename T>
 inline std::string ECS::GetComponentName(T component)
 {
