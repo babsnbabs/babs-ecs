@@ -173,6 +173,7 @@ inline void ECS::AddComponent(Entity entity, T component)
 
 	if (!entityFound)
 	{
+		throw std::runtime_error("Failed to find entity to remove component from");
 	}
 }
 
@@ -268,7 +269,8 @@ inline std::tuple<int, std::string> ECS::GetComponentFlagAndName(T component)
 		throw ComponentNotRegisteredException(componentName);
 	}
 
-	return { componentIndex[componentName], componentName };
+	return std::make_tuple(componentIndex[componentName], componentName)
+		;
 }
 
 template<typename ...Ts>
