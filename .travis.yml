@@ -1,12 +1,16 @@
 language: cpp
 
-os:
-  - linux
-  - windows
-  - osx
-
 compiler:
   - clang
+
+os:
+  - linux
+    addons:
+        apt:
+            sources:
+            - ubuntu-toolchain-r-test
+  - windows
+  - osx
 
 script:
   - mkdir build
