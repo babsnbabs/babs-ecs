@@ -16,9 +16,7 @@ addons:
       - g++-7
   homebrew:
     packages:
-      - gcc-7
-      - g++-7
-    update: true
+      - gcc@7
 
 script:
   - mkdir build
