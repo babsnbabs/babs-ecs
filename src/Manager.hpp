@@ -329,7 +329,6 @@ inline bool ECS::HasComponent(Entity entity, T component)
 
 	int componentFlag = componentIndex[componentName];
 
-	bool entityFound = false;
 	for (Entity& e : this->entities)
 	{
 		if (e.UUID == entity.UUID)
@@ -338,11 +337,7 @@ inline bool ECS::HasComponent(Entity entity, T component)
 		}
 	}
 
-	if (!entityFound)
-	{
-		throw std::runtime_error("Failed to find entity to remove component from");
-	}
-
+	throw std::runtime_error("Failed to find entity to remove component from");
 }
 
 template<typename T>
