@@ -39,20 +39,20 @@ TEST_SUITE("Event Manager")
 		eventManager.Broadcast<Example>(Example(111));
 	}
 
-	//TEST_CASE("EventManager can subscribe and broadcast to a function in a class")
-	//{
-	//	ExampleObserver observer;
-	//	REQUIRE(observer.eventCount == 0);
+	TEST_CASE("EventManager can subscribe and broadcast to a function in a class")
+	{
+		ExampleObserver observer;
+		REQUIRE(observer.eventCount == 0);
 
-	//	eventManager.Subscribe<Example>(std::bind(&ExampleObserver::HandlExample, &observer, std::placeholders::_1));
-	//	eventManager.Broadcast<Example>(Example(111));
+		eventManager.Subscribe<Example>(std::bind(&ExampleObserver::HandlExample, &observer, std::placeholders::_1));
+		eventManager.Broadcast<Example>(Example(111));
 
-	//	REQUIRE(observer.eventCount == 1);
-	//	REQUIRE(observer.lastPayloadReceived == expectedPayload);
-	//}
+		REQUIRE(observer.eventCount == 1);
+		REQUIRE(observer.lastPayloadReceived == expectedPayload);
+	}
 
-	//TEST_CASE("EventManager can broadcast an event no one is listening to")
-	//{
-	//	eventManager.Broadcast<Example>(Example(111));
-	//}
+	TEST_CASE("EventManager can broadcast an event no one is listening to")
+	{
+		eventManager.Broadcast<Example>(Example(111));
+	}
 }
