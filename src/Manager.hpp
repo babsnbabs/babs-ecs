@@ -85,6 +85,7 @@ public:
 
 	template <typename T>
 	bool HasComponent(Entity entity, T component);
+
 private:
 	int32_t entityIndex;
 	bitfield::Bitfield bitIndex;
@@ -105,6 +106,9 @@ private:
 
 	template <typename T, typename ...Ts>
 	std::vector<std::string>* GetComponentNames(std::vector<std::string>* names, T type, Ts... types);
+
+	template <typename T>
+	std::tuple<int, std::string> GetComponentFlagAndName(T component);
 
 	bool ComponentIsRegistered(std::string componentName)
 	{
@@ -136,16 +140,12 @@ inline void ECS::RegisterComponent(T component)
 template<typename T>
 inline void ECS::AddComponent(Entity entity, T component)
 {
-	std::string componentName = this->GetComponentName(component);
-
-	if (!this->ComponentIsRegistered(componentName))
-	{
-		throw ComponentNotRegisteredException(componentName);
-	}
+	auto componenInfoTuple= this->GetComponentFlagAndName(component);
+	int componentFlag = std::get<0>(componenInfoTuple);
+	std::string componentName = std::get<1>(componenInfoTuple);
 
 	ComponentContainer<T>* container = dynamic_cast<ComponentContainer<T>*>(this->components[componentName]);
 	container->data[entity] = component;
-	int componentFlag = componentIndex[componentName];
 
 	components[componentName] = container;
 
@@ -173,21 +173,15 @@ inline void ECS::AddComponent(Entity entity, T component)
 
 	if (!entityFound)
 	{
-		throw std::runtime_error("Failed to find entity to add component to");
 	}
 }
 
 template<typename T>
 inline void ECS::RemoveComponent(Entity entity, T component)
 {
-	std::string componentName = this->GetComponentName(component);
-
-	if (!this->ComponentIsRegistered(componentName))
-	{
-		throw ComponentNotRegisteredException(componentName);
-	}
-
-	int componentFlag = componentIndex[componentName];
+	auto componenInfoTuple = this->GetComponentFlagAndName(component);
+	int componentFlag = std::get<0>(componenInfoTuple);
+	std::string componentName = std::get<1>(componenInfoTuple);
 
 	bool entityFound = false;
 	for (Entity& e : this->entities)
@@ -221,13 +215,9 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 template<typename T>
 inline T* ECS::GetComponent(Entity entity, T component)
 {
-	std::string componentName = this->GetComponentName(component);
-	if (!this->ComponentIsRegistered(componentName))
-	{
-		throw ComponentNotRegisteredException(componentName);
-	}
-
-	int componentFlag = componentIndex[componentName];
+	auto componenInfoTuple = this->GetComponentFlagAndName(component);
+	int componentFlag = std::get<0>(componenInfoTuple);
+	std::string componentName = std::get<1>(componenInfoTuple);
 
 	for (Entity e : this->entities)
 	{
@@ -266,6 +256,19 @@ std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names
 
 	// Continue getting component neames until we are out of template arguments and return the list
 	return this->GetComponentNames(names, std::forward<Ts>(types)...);
+}
+
+template<typename T>
+inline std::tuple<int, std::string> ECS::GetComponentFlagAndName(T component)
+{
+	std::string componentName = this->GetComponentName(component);
+
+	if (!this->ComponentIsRegistered(componentName))
+	{
+		throw ComponentNotRegisteredException(componentName);
+	}
+
+	return { componentIndex[componentName], componentName };
 }
 
 template<typename ...Ts>
