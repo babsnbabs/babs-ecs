@@ -2,13 +2,6 @@ language: cpp
 
 os:
   - linux
-    addons:
-        apt:
-            sources:
-                - llvm-toolchain-trust-5.0
-                - ubuntu-toolchain-r-test
-            packages:
-                - g++-7
   - windows
   - osx
 
