@@ -173,7 +173,7 @@ inline void ECS::AddComponent(Entity entity, T component)
 
 	if (!entityFound)
 	{
-		throw std::runtime_error("Failed to find entity to remove component from");
+		throw std::runtime_error("Failed to find entity to add component to");
 	}
 }
 
