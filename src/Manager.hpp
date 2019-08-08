@@ -321,23 +321,7 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 template<typename T>
 inline bool ECS::HasComponent(Entity entity, T component)
 {
-	std::string componentName = this->GetComponentName(component);
-	if (!this->ComponentIsRegistered(componentName))
-	{
-		throw ComponentNotRegisteredException(componentName);
-	}
-
-	int componentFlag = componentIndex[componentName];
-
-	for (Entity& e : this->entities)
-	{
-		if (e.UUID == entity.UUID)
-		{
-			return bitfield::Has(e.bitfield, componentFlag);
-		}
-	}
-
-	throw std::runtime_error("Failed to find entity to remove component from");
+	return this->GetComponent(entity, component) != nullptr ? true : false;
 }
 
 template<typename T>
