@@ -17,6 +17,7 @@ addons:
   homebrew:
     packages:
       - gcc@7
+    update: true
 
 script:
   - mkdir build
