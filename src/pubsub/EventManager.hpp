@@ -1,6 +1,7 @@
 #include <functional>
 #include <map>
 #include <vector>
+#include <string>
 
 #include "Event.hpp"
 
@@ -9,14 +10,17 @@ class EventManager
 	public:
 		using SlotType = std::function<void(const Event&)>;
 
-		void Subscribe(const Event::DescriptorType& descriptor, SlotType&& slot)
+        template <typename T>
+		void Subscribe(SlotType&& slot)
 		{
-			this->observers[descriptor].push_back(slot);
+            std::string type = typeid(T).name();
+			this->observers[type].push_back(slot);
 		};
 
+        template <typename T>
 		void Broadcast(const Event& event) const
 		{
-			auto type = event.Type();
+			std::string type = typeid(T).name();
 
 			if (observers.find(type) == observers.end())
 			{
@@ -33,5 +37,5 @@ class EventManager
 		}
 
 private:
-	std::map<Event::DescriptorType, std::vector<SlotType>> observers;
+	std::map<std::string, std::vector<SlotType>> observers;
 };
