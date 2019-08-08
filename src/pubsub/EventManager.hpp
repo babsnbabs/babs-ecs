@@ -2,29 +2,29 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <any>
 
 #include "Event.hpp"
 
 class EventManager
 {
 	public:
-		using SlotType = std::function<void(const Event&)>;
+		using SlotType = std::function<void(const std::any&)>;
 
-        template <typename T>
+		template <typename T>
 		void Subscribe(SlotType&& slot)
 		{
-            std::string type = typeid(T).name();
+			std::string type = typeid(T).name();
 			this->observers[type].push_back(slot);
-		};
+		}
 
-        template <typename T>
-		void Broadcast(const Event& event) const
+		template <typename T>
+		void Broadcast(const std::any& event) const
 		{
 			std::string type = typeid(T).name();
 
 			if (observers.find(type) == observers.end())
 			{
-				// No subscribers for this event yet.
 				return;
 			}
 
