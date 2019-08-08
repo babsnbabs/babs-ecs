@@ -82,6 +82,9 @@ public:
 
 	template<typename... Ts>
 	std::vector<Entity*> EntitiesWith(Ts&& ... types);
+
+	template <typename T>
+	bool HasComponent(Entity entity, T component);
 private:
 	int32_t entityIndex;
 	bitfield::Bitfield bitIndex;
@@ -313,6 +316,33 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	}
 
 	return requestedEntities;
+}
+
+template<typename T>
+inline bool ECS::HasComponent(Entity entity, T component)
+{
+	std::string componentName = this->GetComponentName(component);
+	if (!this->ComponentIsRegistered(componentName))
+	{
+		throw ComponentNotRegisteredException(componentName);
+	}
+
+	int componentFlag = componentIndex[componentName];
+
+	bool entityFound = false;
+	for (Entity& e : this->entities)
+	{
+		if (e.UUID == entity.UUID)
+		{
+			return bitfield::Has(e.bitfield, componentFlag);
+		}
+	}
+
+	if (!entityFound)
+	{
+		throw std::runtime_error("Failed to find entity to remove component from");
+	}
+
 }
 
 template<typename T>
