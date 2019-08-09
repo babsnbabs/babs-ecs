@@ -269,8 +269,7 @@ inline std::tuple<int, std::string> ECS::GetComponentFlagAndName(T component)
 		throw ComponentNotRegisteredException(componentName);
 	}
 
-	return std::make_tuple(componentIndex[componentName], componentName)
-		;
+	return std::make_tuple(componentIndex[componentName], componentName);
 }
 
 template<typename ...Ts>
