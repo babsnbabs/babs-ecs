@@ -9,7 +9,7 @@
     #include <any>
 #endif
 
-#include "Event.hpp"
+#include "ECSEvents.hpp"
 
 // EventManager is a simple observer pattern for subscribing to and broadcasting custom events
 class EventManager

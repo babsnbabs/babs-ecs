@@ -11,18 +11,8 @@
 #include <tuple>
 #include <algorithm>
 #include "exceptions/ComponentNotRegisteredException.hpp"
-
-struct Entity
-{
-	bitfield::Bitfield bitfield;
-	int32_t UUID;
-
-	Entity(uint32_t uuid)
-	{
-		bitfield = 0;
-		UUID = uuid;
-	}
-};
+#include "Entity.hpp"
+#include "pubsub/PubSub.hpp"
 
 // This is needed to use Entity as a key in a map.
 struct EntityComparer
@@ -65,8 +55,13 @@ public:
 		this->entityIndex++;
 		this->entities.push_back(e);
 
+
+		EntityCreated entityCreated(e);
+		this->eventManager.Broadcast(entityCreated);
 		return e;
 	}
+
+	EventManager eventManager;
 
 	template <typename T>
 	void RegisterComponent(T component);
@@ -162,6 +157,9 @@ inline void ECS::AddComponent(Entity entity, T component)
 				entityList.push_back(e);
 				this->individualComponentVecs.insert(std::pair<std::string, std::vector<Entity>>(componentName, entityList));
 			}
+
+			ComponentAdded componentAdded(entity, &component);
+			this->eventManager.Broadcast(componentAdded);
 		}
 	}
 
