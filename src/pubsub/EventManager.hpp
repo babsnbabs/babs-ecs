@@ -2,7 +2,12 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <any>
+
+#ifdef __APPLE__
+    #include <experimental/any>
+#else
+    #include <any>
+#endif
 
 #include "Event.hpp"
 
