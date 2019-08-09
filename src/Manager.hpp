@@ -161,7 +161,7 @@ inline void ECS::AddComponent(Entity entity, T component)
 				this->individualComponentVecs.insert(std::pair<std::string, std::vector<Entity>>(componentName, entityList));
 			}
 
-			ComponentAdded componentAdded(entity, &component);
+			ComponentAdded componentAdded(entity, component);
 			this->eventManager.Broadcast(componentAdded);
 		}
 	}
@@ -199,6 +199,9 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 				if (it->UUID == e.UUID)
 				{
 					componentVector->second.erase(it);
+
+					/*ComponentRemoved componentRemoved(entity, component);
+					this->eventManager.Broadcast(componentRemoved);*/
 					break;
 				}
 			}
@@ -239,13 +242,13 @@ inline T* ECS::GetComponent(Entity entity, T component)
 	return nullptr;
 }
 
-std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names)
+inline std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names)
 {
 	return names;
 }
 
 template <typename T>
-std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type)
+inline std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type)
 {
 	std::string name = this->GetComponentName(std::forward<T>(type));
 	names->push_back(name);
@@ -254,7 +257,7 @@ std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names
 }
 
 template <typename T, typename ...Ts>
-std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type, Ts... types)
+inline  std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type, Ts... types)
 {
 	std::string name = this->GetComponentName(std::forward<T>(type));
 	names->push_back(name);

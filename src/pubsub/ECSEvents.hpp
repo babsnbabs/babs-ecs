@@ -11,16 +11,16 @@ template <typename T>
 struct ComponentAdded
 {
 	Entity entity;
-	T& component;
+	T component;
 
-	ComponentAdded(Entity entity, T& component) : entity(entity), component(component) {}
+	ComponentAdded(Entity entity, T component) : entity(entity), component(component) {}
 };
 
 template <typename T>
 struct ComponentRemoved
 {
 	Entity entity;
-	T& component;
+	T component;
 
-	ComponentRemoved(Entity entity, T& component) : entity(entity), component(component) {}
+	ComponentRemoved(Entity entity, T component) : entity(entity), component(component) {}
 };
