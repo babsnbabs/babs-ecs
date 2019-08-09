@@ -4,22 +4,21 @@
 #include <functional>
 #include <iostream>
 
-struct Example
+struct ExampleEvent
 {
-public:
 	int payload;
 
-	Example() : payload(0) {}
-	Example(int payload) : payload(payload) {}
+	ExampleEvent() : payload(0) {}
+	ExampleEvent(int payload) : payload(payload) {}
 };
 
 struct ExampleObserver {
 	int eventCount = 0;
 	int lastPayloadReceived = 0;
-	void HandlExample(const std::any& e)
+
+	void HandlExample(const ExampleEvent& e)
 	{
-		Example eventData = std::any_cast<Example>(e);
-		this->lastPayloadReceived = eventData.payload;
+		this->lastPayloadReceived = e.payload;
 		eventCount++;
 	}
 };
@@ -32,30 +31,26 @@ TEST_SUITE("Event Manager")
 
 	TEST_CASE("EventManager can subscribe and broadcast and event to an anonymous function")
 	{
-		eventManager.Subscribe<Example>([&](const std::any& e) {
-			Example eventData = std::any_cast<Example>(e);
-			REQUIRE(eventData.payload == 111);
-		});
-		eventManager.Broadcast<Example>(Example(111));
+        eventManager.Subscribe<ExampleEvent>([&](const ExampleEvent& e) {
+            REQUIRE(e.payload == expectedPayload);
+        });
+		eventManager.Broadcast<ExampleEvent>(ExampleEvent(expectedPayload));
 	}
 
-	//
-	// Something in here is causing CI failures
-	//
-	//TEST_CASE("EventManager can subscribe and broadcast to a function in a class")
-	//{
-	//	ExampleObserver observer;
-	//	REQUIRE(observer.eventCount == 0);
+	TEST_CASE("EventManager can subscribe and broadcast to a function in a class")
+	{
+		ExampleObserver observer;
+		REQUIRE(observer.eventCount == 0);
 
-	//	eventManager.Subscribe<Example>(std::bind(&ExampleObserver::HandlExample, &observer, std::placeholders::_1));
-	//	eventManager.Broadcast<Example>(Example(111));
+		eventManager.Subscribe<ExampleEvent>(std::bind(&ExampleObserver::HandlExample, &observer, std::placeholders::_1));
+		eventManager.Broadcast<ExampleEvent>(ExampleEvent(expectedPayload));
 
-	//	REQUIRE(observer.eventCount == 1);
-	//	REQUIRE(observer.lastPayloadReceived == expectedPayload);
-	//}
+		REQUIRE(observer.eventCount == 1);
+		REQUIRE(observer.lastPayloadReceived == expectedPayload);
+	}
 
 	TEST_CASE("EventManager can broadcast an event no one is listening to")
 	{
-		eventManager.Broadcast<Example>(Example(111));
+		eventManager.Broadcast<ExampleEvent>(ExampleEvent(expectedPayload));
 	}
 }
