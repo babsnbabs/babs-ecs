@@ -182,7 +182,7 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 		throw ComponentNotRegisteredException(componentName);
 	}
 
-	
+
 
 	int componentFlag = componentIndex[componentName];
 
@@ -195,7 +195,7 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 			e.bitfield = bitfield::Clear(e.bitfield, componentFlag);
 
 			auto componentVector = this->individualComponentVecs.find(componentName);
-			
+
 			for (std::vector<Entity>::iterator it = componentVector->second.begin(); it != componentVector->second.end(); ++it)
 			{
 				if (it->UUID == e.UUID)
@@ -204,7 +204,7 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 					T componentData = container->data[entity];
 
 					componentVector->second.erase(it);
-					
+
 					ComponentRemoved componentRemoved(entity, componentData);
 					this->eventManager.Broadcast(componentRemoved);
 					break;
@@ -277,7 +277,7 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	// build bitfield flags for this search
 	std::vector<std::string> componentNames;
 	this->GetComponentNames(&componentNames, std::forward<Ts>(types)...);
-	
+
 	if (componentNames.size() == 0)
 	{
 		// Asking for all entities

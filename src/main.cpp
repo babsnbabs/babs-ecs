@@ -17,7 +17,7 @@ struct AI
 	std::string difficulty;
 };
 
-int main() 
+int main()
 {
 	ECS ecs;
 	ecs.RegisterComponent(Identity());
@@ -38,12 +38,12 @@ int main()
 
 	Entity enemy = ecs.CreateEntity();
 	AI enemyAi = AI{ "hard" };
-    ecs.AddComponent(enemy, enemyAi);
+	ecs.AddComponent(enemy, enemyAi);
 
-    for (auto entity : ecs.EntitiesWith(Health{}))
-    {
-        std::cout << "entity with health: " << entity->UUID << std::endl;
-    }
-    
+	for (auto entity : ecs.EntitiesWith(Health{}))
+	{
+		std::cout << "entity with health: " << entity->UUID << std::endl;
+	}
+
 	return 0;
 }

@@ -37,9 +37,9 @@ TEST_SUITE("Event Manager")
 
 	TEST_CASE("EventManager can subscribe and broadcast and event to an anonymous function")
 	{
-        eventManager.Subscribe<ExampleEvent>([&](const ExampleEvent& e) {
-            REQUIRE(e.payload == expectedPayload);
-        });
+		eventManager.Subscribe<ExampleEvent>([&](const ExampleEvent& e) {
+			REQUIRE(e.payload == expectedPayload);
+			});
 		eventManager.Broadcast<ExampleEvent>(ExampleEvent(expectedPayload));
 	}
 
@@ -73,7 +73,7 @@ TEST_SUITE("Event Manager fires default ECS events")
 		ecs.eventManager.Subscribe<EntityCreated>([&](const EntityCreated& e) {
 			REQUIRE(e.entity.UUID == 0);
 			entityCreatedEventFired = true;
-		});
+			});
 
 		e0 = ecs.CreateEntity();
 
@@ -89,7 +89,7 @@ TEST_SUITE("Event Manager fires default ECS events")
 		ecs.eventManager.Subscribe<ComponentAdded<Identity>>([&](const ComponentAdded<Identity>& e) {
 			REQUIRE(e.component.name == "Babs1");
 			eventCalled = true;
-		});
+			});
 
 		ecs.AddComponent(e0, e0Identity);
 
