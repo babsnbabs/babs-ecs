@@ -3,17 +3,19 @@ language: cpp
 compiler:
   - clang
 
-os:
-  - linux
-      addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - gcc-7
-          - g++-7
-  - windows
-  - osx
+matrix:
+    include:
+        - os: linux
+          addons:
+            apt:
+            sources:
+                - ubuntu-toolchain-r-test
+            packages:
+                - gcc-7
+                - g++-7
+        - os: windows
+        - os: osx
+          osx_image: xcode11
 
 
 
