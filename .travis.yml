@@ -9,7 +9,6 @@ matrix:
           - linux
           - windows
           - osx
-            osx_image: xcode11
 addons:
   apt:
     sources:
