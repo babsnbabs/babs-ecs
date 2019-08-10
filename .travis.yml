@@ -3,11 +3,13 @@ language: cpp
 compiler:
   - clang
 
-os:
-  - linux
-  - windows
-  - osx
-    osx_image: xcode11
+matrix:
+    include:
+        os:
+          - linux
+          - windows
+          - osx
+            osx_image: xcode11
 addons:
   apt:
     sources:
