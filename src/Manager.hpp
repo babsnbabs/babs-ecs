@@ -82,6 +82,10 @@ public:
 
 	template<typename... Ts>
 	std::vector<Entity*> EntitiesWith(Ts&& ... types);
+
+	template <typename T>
+	bool HasComponent(Entity entity, T component);
+
 private:
 	int32_t entityIndex;
 	bitfield::Bitfield bitIndex;
@@ -313,6 +317,12 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	}
 
 	return requestedEntities;
+}
+
+template<typename T>
+inline bool ECS::HasComponent(Entity entity, T component)
+{
+	return this->GetComponent(entity, component) != nullptr ? true : false;
 }
 
 template<typename T>

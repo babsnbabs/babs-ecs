@@ -184,3 +184,19 @@ TEST_CASE("manager REMOVE COMPONENT")
 
 	REQUIRE(entitiesWithHealth.size() == 1);
 }
+
+TEST_CASE("Manager Entity has Component")
+{
+	ECS ecs;
+
+	ecs.RegisterComponent(Health());
+	ecs.RegisterComponent(Identity());
+
+	auto e0 = ecs.CreateEntity();
+	auto e0Health = Health { 100, 50 };
+	ecs.AddComponent(e0, e0Health);
+
+	REQUIRE(ecs.HasComponent(e0, Health()) == true);
+	REQUIRE(ecs.HasComponent(e0, Identity()) == false);
+
+}
