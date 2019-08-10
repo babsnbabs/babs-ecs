@@ -3,13 +3,6 @@ language: cpp
 compiler:
   - clang
 
-matrix:
-    include:
-        - os: linux
-        - os: windows
-        - os: osx
-          osx_image: xcode11
-
 addons:
     apt:
     sources:
@@ -17,6 +10,13 @@ addons:
     packages:
         - gcc-7
         - g++-7
+
+matrix:
+    include:
+        - os: linux
+        - os: windows
+        - os: osx
+          osx_image: xcode11
 
 script:
   - mkdir build
