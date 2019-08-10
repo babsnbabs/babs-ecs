@@ -5,6 +5,7 @@ compiler:
 
 matrix:
     include:
+        - os: linux
         addons:
             apt:
             sources:
@@ -12,7 +13,6 @@ matrix:
             packages:
                 - gcc-7
                 - g++-7
-        - os: linux
         - os: windows
         - os: osx
           osx_image: xcode11
