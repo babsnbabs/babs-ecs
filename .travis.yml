@@ -3,12 +3,11 @@ language: cpp
 compiler:
   - clang
 
-matrix:
-    include:
-        os:
-          - linux
-          - windows
-          - osx
+os:
+    - linux
+    - windows
+    - osx
+
 addons:
   apt:
     sources:
