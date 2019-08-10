@@ -1,11 +1,9 @@
 language: cpp
 
-compiler:
-  - clang
-
 matrix:
     include:
         - os: linux
+            compiler: clang
             addons:
               apt:
                 sources:
