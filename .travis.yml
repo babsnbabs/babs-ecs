@@ -5,14 +5,14 @@ compiler:
 
 matrix:
     include:
+        addons:
+            apt:
+            sources:
+                - ubuntu-toolchain-r-test
+            packages:
+                - gcc-7
+                - g++-7
         - os: linux
-            addons:
-                apt:
-                    sources:
-                        - ubuntu-toolchain-r-test
-                    packages:
-                        - gcc-7
-                        - g++-7
         - os: windows
         - os: osx
           osx_image: xcode11
