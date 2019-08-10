@@ -1,19 +1,9 @@
 language: cpp
 
 matrix:
-    include:
-        - os: linux
-            compiler: clang
-            addons:
-              apt:
-                sources:
-                  - ubuntu-toolchain-r-test
-                packages:
-                  - gcc-7
-                  - g++-7
-        - os: windows
-        - os: osx
-            osx_image: xcode11
+include:
+    - os: osx
+      osx_image: xcode11
 
 script:
   - mkdir build
