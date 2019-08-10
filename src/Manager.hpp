@@ -182,6 +182,8 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 		throw ComponentNotRegisteredException(componentName);
 	}
 
+	
+
 	int componentFlag = componentIndex[componentName];
 
 	bool entityFound = false;
@@ -198,10 +200,13 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 			{
 				if (it->UUID == e.UUID)
 				{
-					componentVector->second.erase(it);
+					ComponentContainer<T>* container = dynamic_cast<ComponentContainer<T>*>(this->components[componentName]);
+					T componentData = container->data[entity];
 
-					/*ComponentRemoved componentRemoved(entity, component);
-					this->eventManager.Broadcast(componentRemoved);*/
+					componentVector->second.erase(it);
+					
+					ComponentRemoved componentRemoved(entity, componentData);
+					this->eventManager.Broadcast(componentRemoved);
 					break;
 				}
 			}

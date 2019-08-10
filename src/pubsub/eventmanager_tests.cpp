@@ -2,6 +2,7 @@
 #include "PubSub.hpp"
 #include "../Manager.hpp"
 
+#include <string>
 #include <functional>
 #include <iostream>
 
@@ -24,6 +25,10 @@ struct ExampleObserver {
 	}
 };
 
+struct Identity
+{
+	std::string name;
+};
 
 TEST_SUITE("Event Manager")
 {
@@ -58,35 +63,54 @@ TEST_SUITE("Event Manager")
 
 TEST_SUITE("Event Manager fires default ECS events")
 {
-	bool entityCreatedFired = false;
 	ECS ecs;
 	Entity e0 = Entity(-1);
+	Identity e0Identity;
 
 	TEST_CASE("Entity created")
 	{
+		bool entityCreatedEventFired = false;
 		ecs.eventManager.Subscribe<EntityCreated>([&](const EntityCreated& e) {
 			REQUIRE(e.entity.UUID == 0);
-			entityCreatedFired = true;
+			entityCreatedEventFired = true;
 		});
 
 		e0 = ecs.CreateEntity();
 
-		REQUIRE(entityCreatedFired == true);
+		REQUIRE(entityCreatedEventFired == true);
 	}
 
 	TEST_CASE("Component Added")
 	{
+		bool eventCalled = false;
+		ecs.RegisterComponent(Identity());
 
-		// I think this is complaining because ComponentAdded is expecting a type??
+		e0Identity.name = "Babs1";
+		ecs.eventManager.Subscribe<ComponentAdded<Identity>>([&](const ComponentAdded<Identity>& e) {
+			REQUIRE(e.component.name == "Babs1");
+			eventCalled = true;
+		});
 
-		//ecs.eventManager.Subscribe<ComponentAdded>([&](const ComponentAdded& e) {
-		//	REQUIRE(e.entity.UUID == 0);
-		//	entityCreatedFired = true;
-		//});
+		ecs.AddComponent(e0, e0Identity);
+
+		REQUIRE(eventCalled == true);
 	}
 
 	TEST_CASE("Component Removed")
 	{
+		bool eventCalled = false;
+		ecs.RegisterComponent(Identity());
 
+		e0Identity.name = "Babs1";
+		ecs.AddComponent(e0, e0Identity);
+
+		ecs.eventManager.Subscribe<ComponentRemoved<Identity>>([&](const ComponentRemoved<Identity>& e) {
+			REQUIRE(e.component.name == "Babs1");
+			eventCalled = true;
+			});
+
+		ecs.RemoveComponent(e0, Identity());
+
+		REQUIRE(eventCalled == true);
 	}
 }
