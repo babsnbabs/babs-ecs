@@ -4,12 +4,7 @@
 #include <map>
 #include <vector>
 #include <string>
-
-#ifdef __APPLE__
-#include <experimental/any>
-#else
 #include <any>
-#endif
 
 #include "ECSEvents.hpp"
 
@@ -48,11 +43,7 @@ public:
 		{
 			// cast back to the concrete function handler and call it
 			// we do this here so that the observer doesn't have to
-#ifdef __APPLE__
-			auto handler = std::experimental::any_cast<EventHandler<EventType>>(event_observer);
-#else
 			auto handler = std::any_cast<EventHandler<EventType>>(event_observer);
-#endif
 
 			handler(event);
 		}
@@ -60,9 +51,5 @@ public:
 
 private:
 	// this is a map of event type names -> list of function handlers
-#ifdef __APPLE__
-	std::map<std::string, std::vector<std::experimental::any>> observers;
-#else
 	std::map<std::string, std::vector<std::any>> observers;
-#endif
 };
