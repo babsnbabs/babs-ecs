@@ -11,18 +11,8 @@
 #include <tuple>
 #include <algorithm>
 #include "exceptions/ComponentNotRegisteredException.hpp"
-
-struct Entity
-{
-	bitfield::Bitfield bitfield;
-	int32_t UUID;
-
-	Entity(uint32_t uuid)
-	{
-		bitfield = 0;
-		UUID = uuid;
-	}
-};
+#include "Entity.hpp"
+#include "pubsub/PubSub.hpp"
 
 // This is needed to use Entity as a key in a map.
 struct EntityComparer
@@ -65,8 +55,13 @@ public:
 		this->entityIndex++;
 		this->entities.push_back(e);
 
+
+		EntityCreated entityCreated(e);
+		this->eventManager.Broadcast(entityCreated);
 		return e;
 	}
+
+	EventManager eventManager;
 
 	template <typename T>
 	void RegisterComponent(T component);
@@ -169,6 +164,9 @@ inline void ECS::AddComponent(Entity entity, T component)
 				entityList.push_back(e);
 				this->individualComponentVecs.insert(std::pair<std::string, std::vector<Entity>>(componentName, entityList));
 			}
+
+			ComponentAdded componentAdded(entity, component);
+			this->eventManager.Broadcast(componentAdded);
 		}
 	}
 
@@ -188,6 +186,8 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 		throw ComponentNotRegisteredException(componentName);
 	}
 
+
+
 	int componentFlag = componentIndex[componentName];
 
 	bool entityFound = false;
@@ -199,12 +199,18 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 			e.bitfield = bitfield::Clear(e.bitfield, componentFlag);
 
 			auto componentVector = this->individualComponentVecs.find(componentName);
-			
+
 			for (std::vector<Entity>::iterator it = componentVector->second.begin(); it != componentVector->second.end(); ++it)
 			{
 				if (it->UUID == e.UUID)
 				{
+					ComponentContainer<T>* container = dynamic_cast<ComponentContainer<T>*>(this->components[componentName]);
+					T componentData = container->data[entity];
+
 					componentVector->second.erase(it);
+
+					ComponentRemoved componentRemoved(entity, componentData);
+					this->eventManager.Broadcast(componentRemoved);
 					break;
 				}
 			}
@@ -245,13 +251,13 @@ inline T* ECS::GetComponent(Entity entity, T component)
 	return nullptr;
 }
 
-std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names)
+inline std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names)
 {
 	return names;
 }
 
 template <typename T>
-std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type)
+inline std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type)
 {
 	std::string name = this->GetComponentName(std::forward<T>(type));
 	names->push_back(name);
@@ -260,7 +266,7 @@ std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names
 }
 
 template <typename T, typename ...Ts>
-std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type, Ts... types)
+inline  std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type, Ts... types)
 {
 	std::string name = this->GetComponentName(std::forward<T>(type));
 	names->push_back(name);
@@ -275,7 +281,7 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	// build bitfield flags for this search
 	std::vector<std::string> componentNames;
 	this->GetComponentNames(&componentNames, std::forward<Ts>(types)...);
-	
+
 	if (componentNames.size() == 0)
 	{
 		// Asking for all entities

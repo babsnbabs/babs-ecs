@@ -5,12 +5,12 @@ project(babs-ecs)
 # compiler settings
 # compiler is set with CC/CXX environment variables
 
-
 if (WIN32)
+    set(CMAKE_CXX_STANDARD 17)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W3")
 else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pedantic -W")
-endif(WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pedantic -W")
+endif()
 
 
 # External dependencies
@@ -36,8 +36,9 @@ set(TESTED_SOURCES)
 add_executable(tests
     src/tests.cpp
     ${TESTED_SOURCES}
-	src/bitfield_tests.cpp
-	src/manager_tests.cpp
+    src/bitfield_tests.cpp
+    src/manager_tests.cpp
+    src/pubsub/eventmanager_tests.cpp
 )
 add_dependencies(tests doctest)
 

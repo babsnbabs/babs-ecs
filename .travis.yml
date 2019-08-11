@@ -1,12 +1,24 @@
 language: cpp
 
-os:
-  - linux
-  - windows
-  - osx
-
 compiler:
   - clang
+
+matrix:
+  include:
+    - env: ENV=LINUX
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-7
+            - g++-7
+    - env: ENV=WINDOWS
+      os: windows
+    - env: ENV=OSX
+      os: osx
+      osx_image: xcode11
 
 script:
   - mkdir build
