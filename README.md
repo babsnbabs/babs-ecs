@@ -118,7 +118,13 @@ Entity e2 = ecs.CreateEntity();
 ecs.eventManager.Broadcast<CollisionEvent>(CollisionEvent(e1, e2));
 ```
 
+The following events can be subscribed to, and are broadcasted by ECS automatically:
+
+* `EntityCreated` - when a new entity is created, provides a copy of the entity
+* `ComponentAdded<MyComponent>` - when a component is added to an entity, provides the entity and component data
+* `ComponentRemoved<MyComponent>` - when a component is removed from an entity, provides the entity and component data
+
 
 ## Special Thanks
 
-Special thanks to [Bastian Rieck](https://github.com/Pseudomanifold) for writing a great article on making a [Simple Event System ](https://bastian.rieck.ru/blog/posts/2015/event_system_cxx11/) for which our Publisher-Subscriber system is heavily based off of
+Special thanks to [Bastian Rieck](https://github.com/Pseudomanifold) for writing a great article on making a [Simple Event System](https://bastian.rieck.ru/blog/posts/2015/event_system_cxx11/) for which our Publisher-Subscriber system is derived.
