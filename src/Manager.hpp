@@ -184,6 +184,7 @@ inline void ECS::AddComponent(Entity entity, T component)
 }
 
 // GetComponent will return a pointer to the entities component data. Modifications to the component will persist.
+<<<<<<< HEAD
 template<typename T>
 inline void ECS::RemoveComponent(Entity entity, T component)
 {
@@ -233,6 +234,8 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 	}
 }
 
+=======
+>>>>>>> 7a433239f6d980807aff99ef683c7c3c1276fdb0
 template<typename T>
 inline T* ECS::GetComponent(Entity entity, T component)
 {
@@ -260,7 +263,11 @@ inline T* ECS::GetComponent(Entity entity, T component)
 }
 
 // This is the base case of the GetComponentNames recursion, it exists only to stop the recursion.
+<<<<<<< HEAD
 inline std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names)
+=======
+std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names)
+>>>>>>> 7a433239f6d980807aff99ef683c7c3c1276fdb0
 {
 	return names;
 }
@@ -345,12 +352,15 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 
 // Returns the compiler created string for this component. We don't actually care what the
 // string is, but generally it seems to match the type name.
+<<<<<<< HEAD
 template<typename T>
 inline bool ECS::HasComponent(Entity entity, T component)
 {
 	return this->GetComponent(entity, component) != nullptr ? true : false;
 }
 
+=======
+>>>>>>> 7a433239f6d980807aff99ef683c7c3c1276fdb0
 template<typename T>
 inline std::string ECS::GetComponentName(T component)
 {
