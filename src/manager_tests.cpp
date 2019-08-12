@@ -200,3 +200,32 @@ TEST_CASE("Manager Entity has Component")
 	REQUIRE(ecs.HasComponent(e0, Identity()) == false);
 
 }
+
+TEST_CASE("Manager ENTITIES WITH (BUG)")
+{
+	// Reproduction of bug
+	//
+	// Summary:
+	//			When adding more than one component onto an entity, the manager does not return it as expected
+	
+	ECS ecs;
+
+	Entity myBuggedEntity = ecs.CreateEntity();
+	Identity ident;
+	ident.name = "bugbug";
+	Health hp;
+	hp.current = 100;
+	hp.max = 100;
+
+	ecs.RegisterComponent(Identity());
+	ecs.RegisterComponent(Health());
+
+	ecs.AddComponent(myBuggedEntity, ident);
+	ecs.AddComponent(myBuggedEntity, hp);
+
+	auto healthAndIdentity = ecs.EntitiesWith(Identity(), Health());
+
+	// BUG: myBuggedEntity should be returned here, instead we get 0 
+	REQUIRE(healthAndIdentity.size() == 1);
+
+}
