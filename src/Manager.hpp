@@ -207,7 +207,7 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 	{
 		throw ComponentNotRegisteredException(componentName);
 	}
-	
+
 	int componentFlag = componentIndex[componentName];
 
 	// look for and update the entity
