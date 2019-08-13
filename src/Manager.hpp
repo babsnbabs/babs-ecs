@@ -79,13 +79,13 @@ public:
 	T* GetComponent(Entity entity, T component);
 
 	template<typename... Ts>
-	std::vector<Entity*> EntitiesWith(Ts&& ... types);
+	std::vector<Entity> EntitiesWith(Ts&& ... types);
 
 	template <typename T>
 	bool HasComponent(Entity entity, T component);
 
 private:
-	int32_t entityIndex;
+	uint32_t entityIndex;
 	bitfield::Bitfield bitIndex;
 	std::vector<Entity> entities;
 
@@ -175,6 +175,16 @@ inline void ECS::AddComponent(Entity entity, T component)
 				this->individualComponentVecs.insert(std::pair<std::string, std::vector<Entity>>(componentName, entityList));
 			}
 
+			std::map<std::string, std::vector<Entity>>::iterator it;
+			for (it = this->individualComponentVecs.begin(); it != this->individualComponentVecs.end(); ++it)
+			{
+				auto copiedEntity = std::find(it->second.begin(), it->second.end(), e);
+				if (copiedEntity != it->second.end())
+				{
+					copiedEntity->bitfield = e.bitfield;
+				}
+			}
+
 			// fire the component added event
 			ComponentAdded componentAdded(entity, component);
 			this->eventManager.Broadcast(componentAdded);
@@ -221,6 +231,16 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 					T componentData = container->data[entity];
 
 					componentVector->second.erase(it);
+
+					std::map<std::string, std::vector<Entity>>::iterator it;
+					for (it = this->individualComponentVecs.begin(); it != this->individualComponentVecs.end(); ++it)
+					{
+						auto copiedEntity = std::find(it->second.begin(), it->second.end(), e);
+						if (copiedEntity != it->second.end())
+						{
+							copiedEntity->bitfield = e.bitfield;
+						}
+					}
 
 					// fire the component removed event
 					ComponentRemoved componentRemoved(entity, componentData);
@@ -301,7 +321,7 @@ inline  std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string
 // 
 // Typical usage: auto entities = ecs.EntitiesWith(Identity(), Health());
 template<typename ...Ts>
-inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
+inline std::vector<Entity> ECS::EntitiesWith(Ts&& ...types)
 {
 	// build bitfield flags for this search
 	std::vector<std::string> componentNames;
@@ -310,10 +330,11 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	// if no components were provided, we'll return all entities
 	if (componentNames.size() == 0)
 	{
-		std::vector<Entity*> requestedEntities;
+		// Asking for all entities
+		std::vector<Entity> requestedEntities;
 		for (auto e : this->entities)
 		{
-			requestedEntities.push_back(&e);
+			requestedEntities.push_back(e);
 		}
 		return requestedEntities;
 	}
@@ -345,11 +366,11 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 
 	// using the smallest list as our base, we'll check each entity against the
 	// search bitfield
-	std::vector<Entity*> requestedEntities;
+	std::vector<Entity> requestedEntities;
 	requestedEntities.reserve(entitySearchVector.size());
-	for (auto& e : entitySearchVector) {
+	for (auto e : entitySearchVector) {
 		if (bitfield::Has(e.bitfield, field)) {
-			requestedEntities.emplace_back(&e);
+			requestedEntities.emplace_back(e);
 		}
 	}
 

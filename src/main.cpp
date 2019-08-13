@@ -42,7 +42,7 @@ int main()
 
 	for (auto entity : ecs.EntitiesWith(Health{}))
 	{
-		std::cout << "entity with health: " << entity->UUID << std::endl;
+		std::cout << "entity with health: " << entity.UUID << std::endl;
 	}
 
 	return 0;
