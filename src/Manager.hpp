@@ -27,11 +27,12 @@ struct EntityComparer
 class BaseContainer
 {
 public:
-	BaseContainer() {  };
+	BaseContainer() {};
 	virtual ~BaseContainer() {};
 };
 
-// This would be the concrete type created by RegisterComponent and inserted into the map
+// This would be the concrete type created by RegisterComponent and inserted into the map.
+// This container will hold all of the component data for a specific component type.
 template <typename T>
 class ComponentContainer : public BaseContainer
 {
@@ -41,6 +42,7 @@ public:
 	std::map<Entity, T, EntityComparer> data;
 };
 
+// ECS is the manager of the whole dealio.
 class ECS {
 public:
 	ECS()
@@ -49,6 +51,7 @@ public:
 		this->entityIndex = 0;
 	}
 
+	// CreateEntity will initialize and return a new entity with no components.
 	Entity CreateEntity()
 	{
 		Entity e = Entity(this->entityIndex);
@@ -108,6 +111,9 @@ private:
 	}
 };
 
+// RegisterComponent will let ECS know of a new component type it needs to keep track of.
+//
+// Until this is called, components cannot be added/retrieved.
 template<typename T>
 inline void ECS::RegisterComponent(T component)
 {
@@ -120,6 +126,7 @@ inline void ECS::RegisterComponent(T component)
 		componentIndex[componentName] = bitIndex;
 		components[componentName] = new ComponentContainer<T>();
 
+		// set the next bit index
 		unsigned int lastIndex = bitIndex;
 		bitIndex *= 2;
 		if (bitIndex < lastIndex)
@@ -129,6 +136,7 @@ inline void ECS::RegisterComponent(T component)
 	}
 }
 
+// AddComponent will add the component to the entity. It can be retrieved later with ecs.GetComponent(...)
 template<typename T>
 inline void ECS::AddComponent(Entity entity, T component)
 {
@@ -139,12 +147,13 @@ inline void ECS::AddComponent(Entity entity, T component)
 		throw ComponentNotRegisteredException(componentName);
 	}
 
+	// get the container for this component and add the component data to this entity
 	ComponentContainer<T>* container = dynamic_cast<ComponentContainer<T>*>(this->components[componentName]);
 	container->data[entity] = component;
 	int componentFlag = componentIndex[componentName];
 
-	components[componentName] = container;
-
+	// now we find and update this entity
+	// we do this because we can't trust the provided entity's bitfield is up to date
 	bool entityFound = false;
 	for (Entity& e : this->entities)
 	{
@@ -153,6 +162,7 @@ inline void ECS::AddComponent(Entity entity, T component)
 			entityFound = true;
 			e.bitfield = bitfield::Set(e.bitfield, componentFlag);
 
+			// make sure this entity is in the component specific list of entities
 			auto iter = this->individualComponentVecs.find(componentName);
 			if (iter != this->individualComponentVecs.end())
 			{
@@ -165,6 +175,7 @@ inline void ECS::AddComponent(Entity entity, T component)
 				this->individualComponentVecs.insert(std::pair<std::string, std::vector<Entity>>(componentName, entityList));
 			}
 
+			// fire the component added event
 			ComponentAdded componentAdded(entity, component);
 			this->eventManager.Broadcast(componentAdded);
 		}
@@ -176,6 +187,7 @@ inline void ECS::AddComponent(Entity entity, T component)
 	}
 }
 
+// GetComponent will return a pointer to the entities component data. Modifications to the component will persist.
 template<typename T>
 inline void ECS::RemoveComponent(Entity entity, T component)
 {
@@ -186,20 +198,21 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 		throw ComponentNotRegisteredException(componentName);
 	}
 
-
-
 	int componentFlag = componentIndex[componentName];
 
+	// look for and update the entity
 	bool entityFound = false;
 	for (Entity& e : this->entities)
 	{
 		if (e.UUID == entity.UUID)
 		{
 			entityFound = true;
+
+			// first we clear its bitfield
 			e.bitfield = bitfield::Clear(e.bitfield, componentFlag);
 
+			// now we remove it from the component specific list
 			auto componentVector = this->individualComponentVecs.find(componentName);
-
 			for (std::vector<Entity>::iterator it = componentVector->second.begin(); it != componentVector->second.end(); ++it)
 			{
 				if (it->UUID == e.UUID)
@@ -209,6 +222,7 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 
 					componentVector->second.erase(it);
 
+					// fire the component removed event
 					ComponentRemoved componentRemoved(entity, componentData);
 					this->eventManager.Broadcast(componentRemoved);
 					break;
@@ -236,6 +250,7 @@ inline T* ECS::GetComponent(Entity entity, T component)
 
 	int componentFlag = componentIndex[componentName];
 
+	// first find the entity, then check for its component data
 	for (Entity e : this->entities)
 	{
 		if (e.UUID == entity.UUID)
@@ -251,11 +266,14 @@ inline T* ECS::GetComponent(Entity entity, T component)
 	return nullptr;
 }
 
+// This is the base case of the GetComponentNames recursion, it exists only to stop the recursion.
 inline std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names)
 {
 	return names;
 }
 
+// This ends up being either the entry point and/or 2nd to last case of the GetComponentNames recursion.
+// It will call the function above.
 template <typename T>
 inline std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type)
 {
@@ -265,6 +283,8 @@ inline std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>
 	return names;
 }
 
+// This is an entry point for the GetComponentNames recursion. It will call of version of itself
+// or the function above.
 template <typename T, typename ...Ts>
 inline  std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string>* names, T type, Ts... types)
 {
@@ -275,6 +295,11 @@ inline  std::vector<std::string>* ECS::GetComponentNames(std::vector<std::string
 	return this->GetComponentNames(names, std::forward<Ts>(types)...);
 }
 
+// Returns a list of Entity pointers of entities matching the provided list of component types.
+//
+// If no component types are provided, all entities will be returned.
+// 
+// Typical usage: auto entities = ecs.EntitiesWith(Identity(), Health());
 template<typename ...Ts>
 inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 {
@@ -282,9 +307,9 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	std::vector<std::string> componentNames;
 	this->GetComponentNames(&componentNames, std::forward<Ts>(types)...);
 
+	// if no components were provided, we'll return all entities
 	if (componentNames.size() == 0)
 	{
-		// Asking for all entities
 		std::vector<Entity*> requestedEntities;
 		for (auto e : this->entities)
 		{
@@ -293,6 +318,8 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 		return requestedEntities;
 	}
 
+	// looks like they asked for 1+ components. first we'll get the current size of
+	// each component specific list
 	std::vector<std::tuple<std::string, int>> componentListSizes;
 	for (auto componentName : componentNames)
 	{
@@ -305,15 +332,19 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 		componentListSizes.push_back(std::make_tuple(componentName, vec->size()));
 	}
 
+	// now we'll build our search bitfield
 	bitfield::Bitfield field = 0;
 	for (auto name : componentNames)
 	{
 		field = bitfield::Set(field, this->componentIndex[name]);
 	}
 
+	// grab our smallest component list 
 	std::string smallestComponentList = std::get<0>(*std::min_element(begin(componentListSizes), end(componentListSizes), [](auto lhs, auto rhs) {return std::get<1>(lhs) < std::get<1>(rhs); }));
 	auto entitySearchVector = this->individualComponentVecs[smallestComponentList];
 
+	// using the smallest list as our base, we'll check each entity against the
+	// search bitfield
 	std::vector<Entity*> requestedEntities;
 	requestedEntities.reserve(entitySearchVector.size());
 	for (auto& e : entitySearchVector) {
@@ -325,6 +356,8 @@ inline std::vector<Entity*> ECS::EntitiesWith(Ts&& ...types)
 	return requestedEntities;
 }
 
+// Returns the compiler created string for this component. We don't actually care what the
+// string is, but generally it seems to match the type name.
 template<typename T>
 inline bool ECS::HasComponent(Entity entity, T component)
 {
