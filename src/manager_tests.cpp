@@ -205,9 +205,9 @@ TEST_CASE("Manager EntitiesWith - multiple entities")
 {
 	ECS ecs;
 
-	Entity myBuggedEntity = ecs.CreateEntity();
+	Entity entity = ecs.CreateEntity();
 	Identity ident;
-	ident.name = "bugbug";
+	ident.name = "babs1";
 	Health hp;
 	hp.current = 100;
 	hp.max = 100;
@@ -215,8 +215,8 @@ TEST_CASE("Manager EntitiesWith - multiple entities")
 	ecs.RegisterComponent(Identity());
 	ecs.RegisterComponent(Health());
 
-	ecs.AddComponent(myBuggedEntity, ident);
-	ecs.AddComponent(myBuggedEntity, hp);
+	ecs.AddComponent(entity, ident);
+	ecs.AddComponent(entity, hp);
 
 	auto healthAndIdentity = ecs.EntitiesWith(Identity(), Health());
 
