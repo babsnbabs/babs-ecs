@@ -171,7 +171,6 @@ TEST_SUITE("Manager Searching")
         Entity e = ecs.CreateEntity();
 
         // Should throw because AI is not registered
-        // However, it doesn't throw at all because it only "sees" health in EntitiesWith - after all the recursion.
         CHECK_THROWS_AS(ecs.EntitiesWith(Health{}, Identity{}, AI{}), const ComponentNotRegisteredException);
     }
 }

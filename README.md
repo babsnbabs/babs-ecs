@@ -1,7 +1,10 @@
 # Babs-ECS
 [![Build Status](https://travis-ci.org/babsnbabs/babs-ecs.svg?branch=master)](https://travis-ci.org/babsnbabs/babs-ecs)
 
-A fast, simple, cross platform Entity Component System written for C++14.
+A fast, simple, and cross platform C++17 header-only Entity Component System
+
+
+## Overview
 
 There are quite a few Entity Component Systems available in C++:
 * [EntityPlus](https://github.com/Yelnats321/EntityPlus)
@@ -14,6 +17,7 @@ This library will seem very familiar at its core and usage. It exists because we
 * cross platform (linux, windows, and osx)
 * well documented and tested
 * fastest in the west
+* friendly error output on misconfiguration
 
 
 ## Downloading and Including
@@ -102,14 +106,14 @@ ECS ecs;
 
 struct CollisionEvent
 {
-	Entity e1;
+    Entity e1;
     Entity e2;
 
-	CollisionEvent(Entity e1, Entity e2) : e1(e1), e2(e2) {}
+    CollisionEvent(Entity e1, Entity e2) : e1(e1), e2(e2) {}
 };
 
 ecs.eventManager.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
-	std::cout << "entity " << e1.UUID << " and entity " << e2.UUID << " collided!" << std::endl; 
+    std::cout << "entity " << e1.UUID << " and entity " << e2.UUID << " collided!" << std::endl; 
 });
 
 Entity e1 = ecs.CreateEntity();

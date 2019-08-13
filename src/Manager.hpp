@@ -51,7 +51,7 @@ public:
 		this->entityIndex = 0;
 	}
 
-    // CreateEntity will initialize and return a new entity with no components.
+	// CreateEntity will initialize and return a new entity with no components.
 	Entity CreateEntity()
 	{
 		Entity e = Entity(this->entityIndex);
