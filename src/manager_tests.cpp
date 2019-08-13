@@ -201,13 +201,8 @@ TEST_CASE("Manager Entity has Component")
 
 }
 
-TEST_CASE("Manager ENTITIES WITH (BUG)")
+TEST_CASE("Manager EntitiesWith - multiple entities")
 {
-	// Reproduction of bug
-	//
-	// Summary:
-	//			When adding more than one component onto an entity, the manager does not return it as expected
-	
 	ECS ecs;
 
 	Entity myBuggedEntity = ecs.CreateEntity();
@@ -225,7 +220,5 @@ TEST_CASE("Manager ENTITIES WITH (BUG)")
 
 	auto healthAndIdentity = ecs.EntitiesWith(Identity(), Health());
 
-	// BUG: myBuggedEntity should be returned here, instead we get 0 
 	REQUIRE(healthAndIdentity.size() == 1);
-
 }
