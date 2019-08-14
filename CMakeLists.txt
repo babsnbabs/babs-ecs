@@ -29,30 +29,31 @@ link_directories(
     ${PROJECT_SOURCE_DIR}/build
 )
 
-# common source files - things that get tested basically
-set(TESTED_SOURCES)
-
 # tests
 add_executable(tests
     src/tests.cpp
-    ${TESTED_SOURCES}
     src/bitfield_tests.cpp
     src/manager_tests.cpp
     src/pubsub/eventmanager_tests.cpp
 )
 add_dependencies(tests doctest)
 
-# main
-add_executable(babs-ecs
-    src/main.cpp
-    ${TESTED_SOURCES}
-)
-
 # benchmark
 add_executable(babs-benchmark
     src/benchmark.cpp
-    ${TESTED_SOURCES}
 )
 
-add_dependencies(babs-ecs tests)
+# release - must be called explicitly with `make release`
+set(RELEASE_SOURCES
+    "README.md"
+    "LICENSE"
+    "src/*.hpp"
+    "src/**/*.hpp"
+)
 
+set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_custom_target(release
+    WORKING_DIRECTORY "${ROOT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E tar "cf" "${ROOT_DIR}/build/release.zip" --format=zip ${RELEASE_SOURCES}
+    COMMAND ${CMAKE_COMMAND} -E tar "cf" "${ROOT_DIR}/build/release.tar.gz" ${RELEASE_SOURCES})
