@@ -3,7 +3,7 @@
 #include <string>
 #include <iomanip>
 
-#include "ECSManager.hpp"
+#include "ECS.hpp"
 
 class Timer {
 public:
