@@ -14,7 +14,8 @@
 #include "bitfield/bitfield.hpp"
 #include "Exceptions.hpp"
 #include "Entity.hpp"
-#include "pubsub/PubSub.hpp"
+#include "events/EventManager.hpp"
+#include "Events.hpp"
 
 // This is needed to use Entity as a key in a map.
 struct EntityComparer
@@ -47,6 +48,9 @@ public:
 // ECS is the manager of the whole dealio.
 class ECS {
 public:
+
+	events::EventManager events;
+
 	ECS()
 	{
 		this->bitIndex = 1;
@@ -72,12 +76,10 @@ public:
 		Entity e = Entity(entityId);
 		this->entities.push_back(e);
 
-		EntityCreated entityCreated(e);
-		this->eventManager.Broadcast(entityCreated);
+		babs_ecs::EntityCreated entityCreated(e);
+		this->events.Broadcast(entityCreated);
 		return e;
 	}
-
-	EventManager eventManager;
 
 	template <typename T>
 	void RegisterComponent(T component);
@@ -231,8 +233,8 @@ inline void ECS::AddComponent(Entity entity, T component)
 			}
 
 			// fire the component added event
-			ComponentAdded componentAdded(entity, component);
-			this->eventManager.Broadcast(componentAdded);
+			babs_ecs::ComponentAdded componentAdded(entity, component);
+			this->events.Broadcast(componentAdded);
 		}
 	}
 
@@ -295,8 +297,8 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 					}
 
 					// fire the component removed event
-					ComponentRemoved componentRemoved(entity, componentData);
-					this->eventManager.Broadcast(componentRemoved);
+					babs_ecs::ComponentRemoved componentRemoved(entity, componentData);
+					this->events.Broadcast(componentRemoved);
 					break;
 				}
 			}

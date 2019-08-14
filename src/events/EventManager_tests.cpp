@@ -1,10 +1,11 @@
 #include "doctest.h"
-#include "PubSub.hpp"
-#include "../Manager.hpp"
 
 #include <string>
 #include <functional>
 #include <iostream>
+
+#include "EventManager.hpp"
+#include "../Manager.hpp"
 
 struct ExampleEvent
 {
@@ -32,7 +33,7 @@ struct Identity
 
 TEST_SUITE("Event Manager")
 {
-	EventManager eventManager;
+	events::EventManager eventManager;
 	int expectedPayload = 111;
 
 	TEST_CASE("EventManager can subscribe and broadcast and event to an anonymous function")
@@ -70,7 +71,7 @@ TEST_SUITE("Event Manager fires default ECS events")
 	TEST_CASE("Entity created")
 	{
 		bool entityCreatedEventFired = false;
-		ecs.eventManager.Subscribe<EntityCreated>([&](const EntityCreated& e) {
+		ecs.events.Subscribe<babs_ecs::EntityCreated>([&](const babs_ecs::EntityCreated& e) {
 			REQUIRE(e.entity.UUID == 0);
 			entityCreatedEventFired = true;
 			});
@@ -86,7 +87,7 @@ TEST_SUITE("Event Manager fires default ECS events")
 		ecs.RegisterComponent(Identity());
 
 		e0Identity.name = "Babs1";
-		ecs.eventManager.Subscribe<ComponentAdded<Identity>>([&](const ComponentAdded<Identity>& e) {
+		ecs.events.Subscribe<babs_ecs::ComponentAdded<Identity>>([&](const babs_ecs::ComponentAdded<Identity>& e) {
 			REQUIRE(e.component.name == "Babs1");
 			eventCalled = true;
 			});
@@ -104,7 +105,7 @@ TEST_SUITE("Event Manager fires default ECS events")
 		e0Identity.name = "Babs1";
 		ecs.AddComponent(e0, e0Identity);
 
-		ecs.eventManager.Subscribe<ComponentRemoved<Identity>>([&](const ComponentRemoved<Identity>& e) {
+		ecs.events.Subscribe<babs_ecs::ComponentRemoved<Identity>>([&](const babs_ecs::ComponentRemoved<Identity>& e) {
 			REQUIRE(e.component.name == "Babs1");
 			eventCalled = true;
 			});

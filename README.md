@@ -112,21 +112,21 @@ struct CollisionEvent
     CollisionEvent(Entity e1, Entity e2) : e1(e1), e2(e2) {}
 };
 
-ecs.eventManager.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
+ecs.events.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
     std::cout << "entity " << e1.UUID << " and entity " << e2.UUID << " collided!" << std::endl; 
 });
 
 Entity e1 = ecs.CreateEntity();
 Entity e2 = ecs.CreateEntity();
 
-ecs.eventManager.Broadcast<CollisionEvent>(CollisionEvent(e1, e2));
+ecs.events.Broadcast<CollisionEvent>(CollisionEvent(e1, e2));
 ```
 
 The following events can be subscribed to, and are broadcasted by ECS automatically:
 
-* `EntityCreated` - when a new entity is created, provides a copy of the entity
-* `ComponentAdded<MyComponent>` - when a component is added to an entity, provides the entity and component data
-* `ComponentRemoved<MyComponent>` - when a component is removed from an entity, provides the entity and component data
+* `babs_ecs::EntityCreated` - when a new entity is created, provides a copy of the entity
+* `babs_ecs::ComponentAdded<MyComponent>` - when a component is added to an entity, provides the entity and component data
+* `babs_ecs::ComponentRemoved<MyComponent>` - when a component is removed from an entity, provides the entity and component data
 
 
 ## Special Thanks
