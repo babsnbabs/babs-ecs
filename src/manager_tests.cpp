@@ -107,6 +107,21 @@ TEST_SUITE("Manager Components")
 		auto identity = ecs.GetComponent(e, Identity());
 		REQUIRE(identity->name == "babs2");
 	}
+
+	TEST_CASE("Delete component data that doesn't exist")
+	{
+		ECS ecs;
+
+		ecs.RegisterComponent(Identity());
+		ecs.RegisterComponent(Health());
+
+		Entity e0 = ecs.CreateEntity();
+		Identity e0Ident = Identity();
+		e0Ident.name = "babs1";
+
+		// Nothing to really assert, it just shouldn't blow up.
+		ecs.RemoveComponent(e0, Health());
+	}
 }
 
 TEST_SUITE("Manager Searching")
@@ -194,5 +209,112 @@ TEST_SUITE("Manager Searching")
 		auto healthAndIdentity = ecs.EntitiesWith(Identity(), Health());
 
 		REQUIRE(healthAndIdentity.size() == 1);
+	}
+}
+
+TEST_SUITE("Manager deleting entities")
+{
+	TEST_CASE("Deleting entities reuse their indexRegular delete")
+	{
+		ECS ecs;
+
+		Entity zero = ecs.CreateEntity(); // 0
+		Entity one = ecs.CreateEntity(); // 1
+		Entity two = ecs.CreateEntity(); // 2
+		Entity three = ecs.CreateEntity(); // 3
+
+		ecs.RemoveEntity(two);
+
+		Entity newTwo = ecs.CreateEntity(); // should be 2 again
+		REQUIRE(newTwo.UUID == 2);
+		Entity four = ecs.CreateEntity();
+		REQUIRE(four.UUID == 4);
+	}
+
+	TEST_CASE("Deleting an entity also deletes component data")
+	{
+		ECS ecs;
+
+		ecs.RegisterComponent(Identity());
+
+		Entity e0 = ecs.CreateEntity();
+		Identity e0Ident;
+		e0Ident.name = "babs1";
+
+		ecs.AddComponent(e0, e0Ident);
+
+		Entity e1 = ecs.CreateEntity();
+		Identity e1Ident;
+		e0Ident.name = "babs2";
+
+		ecs.AddComponent(e1, e1Ident);
+
+		ecs.RemoveEntity(e0);
+
+		REQUIRE(ecs.EntitiesWith(Identity()).size() == 1);
+	}
+
+	TEST_CASE("Deleting an entity also deletes component data (bigger example)")
+	{
+		ECS ecs;
+
+		ecs.RegisterComponent(Identity());
+		ecs.RegisterComponent(Health());
+
+		Entity e0 = ecs.CreateEntity();
+		Identity e0Ident = Identity();
+		e0Ident.name = "babs1";
+		Health e0Health = Health();
+		e0Health.max = 100;
+		e0Health.current = 100;
+
+		ecs.AddComponent(e0, e0Ident);
+		ecs.AddComponent(e0, e0Health);
+
+		Entity e1 = ecs.CreateEntity();
+		Identity e1Ident = Identity();
+		e1Ident.name = "babs2";
+		Health e1Health = Health();
+		e1Health.max = 500;
+		e1Health.current = 500;
+
+		ecs.AddComponent(e1, e1Ident);
+		ecs.AddComponent(e1, e1Health);
+
+
+		Entity e2 = ecs.CreateEntity();
+		Identity e2Ident = Identity();
+		e2Ident.name = "noname";
+		Health e2Health = Health();
+		e2Health.max = 20;
+		e2Health.current = 15;
+
+		ecs.AddComponent(e2, e2Ident);
+		ecs.AddComponent(e2, e2Health);
+
+		ecs.RemoveEntity(e1);
+
+		REQUIRE(ecs.EntitiesWith(Identity(), Health()).size() == 2);
+	}
+
+	TEST_CASE("Deleting an entity and trying to access its data after")
+	{
+		ECS ecs;
+
+		ecs.RegisterComponent(Identity());
+		ecs.RegisterComponent(Health());
+
+		Entity e0 = ecs.CreateEntity();
+		Identity e0Ident = Identity();
+		e0Ident.name = "babs1";
+		Health e0Health = Health();
+		e0Health.max = 100;
+		e0Health.current = 100;
+
+		ecs.RemoveEntity(e0);
+
+		Identity* ident = ecs.GetComponent(e0, Identity());
+
+		REQUIRE(ident == nullptr);
 	}
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "bitfield.hpp"
 #include <string>
 #include <map>
 #include <iostream>
@@ -10,7 +9,11 @@
 #include <vector>
 #include <tuple>
 #include <algorithm>
+#include <queue>
+
+#include "bitfield.hpp"
 #include "exceptions/ComponentNotRegisteredException.hpp"
+#include "exceptions/EntityNotFoundException.hpp"
 #include "Entity.hpp"
 #include "pubsub/PubSub.hpp"
 
@@ -54,10 +57,21 @@ public:
 	// CreateEntity will initialize and return a new entity with no components.
 	Entity CreateEntity()
 	{
-		Entity e = Entity(this->entityIndex);
-		this->entityIndex++;
-		this->entities.push_back(e);
+		uint32_t entityId = -1;
 
+		if (!this->unusedEntityIndices.empty())
+		{
+			entityId = this->unusedEntityIndices.front();
+			this->unusedEntityIndices.pop();
+		}
+		else
+		{
+			entityId = this->entityIndex;
+			entityIndex++;
+		}
+
+		Entity e = Entity(entityId);
+		this->entities.push_back(e);
 
 		EntityCreated entityCreated(e);
 		this->eventManager.Broadcast(entityCreated);
@@ -84,7 +98,39 @@ public:
 	template <typename T>
 	bool HasComponent(Entity entity, T component);
 
+	void RemoveEntity(Entity entity)
+	{
+		uint32_t entityId = entity.UUID;
+		size_t originalSize = this->entities.size();
+		auto erase = this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), entity), this->entities.end());
+
+		if (originalSize == this->entities.size())
+		{
+			throw EntityNotFoundException(entityId);
+		}
+
+		this->unusedEntityIndices.push(entityId);
+
+		std::map<std::string, std::vector<Entity>>::iterator it;
+		for (it = this->individualComponentVecs.begin(); it != this->individualComponentVecs.end(); ++it)
+		{
+			std::string name = it->first;
+
+			auto it = this->individualComponentVecs[name].begin();
+			while (it != this->individualComponentVecs[name].end())
+			{
+				if (entity.UUID == it->UUID)
+				{
+					this->individualComponentVecs[name].erase(it);
+					break;
+				}
+				++it;
+			}
+		}
+	}
+
 private:
+	std::queue<uint32_t> unusedEntityIndices;
 	uint32_t entityIndex;
 	bitfield::Bitfield bitIndex;
 	std::vector<Entity> entities;
@@ -223,6 +269,13 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 
 			// now we remove it from the component specific list
 			auto componentVector = this->individualComponentVecs.find(componentName);
+
+			if (componentVector == this->individualComponentVecs.end())
+			{
+				// Nothing to remove
+				return;
+			}
+
 			for (std::vector<Entity>::iterator it = componentVector->second.begin(); it != componentVector->second.end(); ++it)
 			{
 				if (it->UUID == e.UUID)
