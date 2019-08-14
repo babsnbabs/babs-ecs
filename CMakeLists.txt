@@ -32,8 +32,8 @@ link_directories(
 # tests
 add_executable(tests
     src/tests.cpp
+    src/ECSManager_tests.cpp
     src/bitfield/bitfield_tests.cpp
-    src/manager_tests.cpp
     src/events/EventManager_tests.cpp
 )
 add_dependencies(tests doctest)

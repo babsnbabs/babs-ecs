@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Manager.hpp"
+#include "ECSManager.hpp"
 #include "Exceptions.hpp"
 
 struct Identity
@@ -25,7 +25,7 @@ TEST_SUITE("Manager Setup")
 {
 	TEST_CASE("CreateEntity returns componentless, unique entities")
 	{
-		babs_ecs::ECS ecs;
+		babs_ecs::ECSManager ecs;
 
 		babs_ecs::Entity e0 = ecs.CreateEntity();
 		babs_ecs::Entity e1 = ecs.CreateEntity();
@@ -46,7 +46,7 @@ TEST_SUITE("Manager Setup")
 
 TEST_SUITE("Manager Components")
 {
-	babs_ecs::ECS ecs;
+	babs_ecs::ECSManager ecs;
 	babs_ecs::Entity e = ecs.CreateEntity();
 
 	TEST_CASE("AddComponent with unregistered component should throw")
@@ -110,7 +110,7 @@ TEST_SUITE("Manager Components")
 
 	TEST_CASE("Delete component data that doesn't exist")
 	{
-		babs_ecs::ECS ecs;
+		babs_ecs::ECSManager ecs;
 
 		ecs.RegisterComponent(Identity());
 		ecs.RegisterComponent(Health());
@@ -126,7 +126,7 @@ TEST_SUITE("Manager Components")
 
 TEST_SUITE("Manager Searching")
 {
-	babs_ecs::ECS ecs;
+	babs_ecs::ECSManager ecs;
 
 	TEST_CASE("EntitiesWith finds 1 entity with Identity")
 	{
@@ -191,7 +191,7 @@ TEST_SUITE("Manager Searching")
 
 	TEST_CASE("Manager EntitiesWith - multiple entities")
 	{
-		babs_ecs::ECS ecs;
+		babs_ecs::ECSManager ecs;
 
 		babs_ecs::Entity entity = ecs.CreateEntity();
 		Identity ident;
@@ -216,7 +216,7 @@ TEST_SUITE("Manager deleting entities")
 {
 	TEST_CASE("Deleting entities reuse their indexRegular delete")
 	{
-		babs_ecs::ECS ecs;
+		babs_ecs::ECSManager ecs;
 
 		babs_ecs::Entity zero = ecs.CreateEntity(); // 0
 		babs_ecs::Entity one = ecs.CreateEntity(); // 1
@@ -233,7 +233,7 @@ TEST_SUITE("Manager deleting entities")
 
 	TEST_CASE("Deleting an entity also deletes component data")
 	{
-		babs_ecs::ECS ecs;
+		babs_ecs::ECSManager ecs;
 
 		ecs.RegisterComponent(Identity());
 
@@ -256,7 +256,7 @@ TEST_SUITE("Manager deleting entities")
 
 	TEST_CASE("Deleting an entity also deletes component data (bigger example)")
 	{
-		babs_ecs::ECS ecs;
+		babs_ecs::ECSManager ecs;
 
 		ecs.RegisterComponent(Identity());
 		ecs.RegisterComponent(Health());
@@ -299,7 +299,7 @@ TEST_SUITE("Manager deleting entities")
 
 	TEST_CASE("Deleting an entity and trying to access its data after")
 	{
-		babs_ecs::ECS ecs;
+		babs_ecs::ECSManager ecs;
 
 		ecs.RegisterComponent(Identity());
 		ecs.RegisterComponent(Health());

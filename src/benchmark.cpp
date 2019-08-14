@@ -3,7 +3,7 @@
 #include <string>
 #include <iomanip>
 
-#include "Manager.hpp"
+#include "ECSManager.hpp"
 
 class Timer {
 public:
@@ -48,7 +48,7 @@ struct Tag {};
 
 void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 {
-	babs_ecs::ECS ecs;
+	babs_ecs::ECSManager ecs;
 	ecs.RegisterComponent(Identity());
 	ecs.RegisterComponent(Tag());
 

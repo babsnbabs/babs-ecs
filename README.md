@@ -47,7 +47,7 @@ All you need to do is create an instance of the manager and you're ready to go:
 ```c++
 #include "babs-ecs/Manager.hpp"
 
-ECS ecs;
+babs_ecs::ECSManager ecs;
 ```
 
 ### Entities
@@ -55,9 +55,9 @@ ECS ecs;
 Entities are easy to create and effectively just a unique identifier within the manager. It's safe to store the entities in your own systems, but make sure to go through the manager when checking the latest component availability.
 
 ```c++
-#include "babs-ecs/Manager.hpp"
+#include "babs-ecs/ECSManager.hpp"
 
-ECS ecs;
+babs_ecs::ECSManager ecs;
 
 babs_ecs::Entity entity = ecs.CreateEntity();
 entity.UUID // returns 0 since it's the first
@@ -70,13 +70,13 @@ Components can be defined freely and registered with ECS for subsequent use. The
 ```c++
 #include <string>
 #include <iostream>
-#include "babs-ecs/Manager.hpp"
+#include "babs-ecs/ECSManager.hpp"
 
 struct Identity {
     std::string name;
 };
 
-ECS ecs;
+babs_ecs::ECSManager ecs;
 
 ecs.RegisterComponent(Identity());
 ```
@@ -100,9 +100,9 @@ ecs.RemoveComponent(player, Identity());
 Event systems work well with ECS for de-coupled communication between systems. Events are as easy as components to work with. These don't require registration, and you can subscribe and broadcast at any time through the event manager provided by the ECS instance.
 
 ```c++
-#include "babs-ecs/Manager.hpp"
+#include "babs-ecs/ECSManager.hpp"
 
-ECS ecs;
+babs_ecs::ECSManager ecs;
 
 struct CollisionEvent
 {
