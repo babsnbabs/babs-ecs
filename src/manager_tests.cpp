@@ -3,7 +3,7 @@
 #include <string>
 
 #include "Manager.hpp"
-#include "exceptions/ComponentNotRegisteredException.hpp"
+#include "Exceptions.hpp"
 
 struct Identity
 {
@@ -51,7 +51,7 @@ TEST_SUITE("Manager Components")
 
 	TEST_CASE("AddComponent with unregistered component should throw")
 	{
-		CHECK_THROWS_AS(ecs.AddComponent(e, Health()), const ComponentNotRegisteredException);
+		CHECK_THROWS_AS(ecs.AddComponent(e, Health()), const babs_ecs::ComponentNotRegisteredException);
 	}
 
 	TEST_CASE("AddComponent works after component is registered")
@@ -88,7 +88,7 @@ TEST_SUITE("Manager Components")
 
 	TEST_CASE("GetComponent with unregistered component throws")
 	{
-		CHECK_THROWS_AS(ecs.GetComponent(e, AI()), const ComponentNotRegisteredException);
+		CHECK_THROWS_AS(ecs.GetComponent(e, AI()), const babs_ecs::ComponentNotRegisteredException);
 	}
 
 	TEST_CASE("RemoveComponent removes the data")
@@ -186,7 +186,7 @@ TEST_SUITE("Manager Searching")
 		Entity e = ecs.CreateEntity();
 
 		// Should throw because AI is not registered
-		CHECK_THROWS_AS(ecs.EntitiesWith(Health{}, Identity{}, AI{}), const ComponentNotRegisteredException);
+		CHECK_THROWS_AS(ecs.EntitiesWith(Health{}, Identity{}, AI{}), const babs_ecs::ComponentNotRegisteredException);
 	}
 
 	TEST_CASE("Manager EntitiesWith - multiple entities")

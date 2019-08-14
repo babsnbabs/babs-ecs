@@ -12,8 +12,7 @@
 #include <queue>
 
 #include "bitfield.hpp"
-#include "exceptions/ComponentNotRegisteredException.hpp"
-#include "exceptions/EntityNotFoundException.hpp"
+#include "Exceptions.hpp"
 #include "Entity.hpp"
 #include "pubsub/PubSub.hpp"
 
@@ -106,7 +105,7 @@ public:
 
 		if (originalSize == this->entities.size())
 		{
-			throw EntityNotFoundException(entityId);
+			throw babs_ecs::EntityNotFoundException(entityId);
 		}
 
 		this->unusedEntityIndices.push(entityId);
@@ -190,7 +189,7 @@ inline void ECS::AddComponent(Entity entity, T component)
 
 	if (!this->ComponentIsRegistered(componentName))
 	{
-		throw ComponentNotRegisteredException(componentName);
+		throw babs_ecs::ComponentNotRegisteredException(componentName);
 	}
 
 	// get the container for this component and add the component data to this entity
@@ -251,7 +250,7 @@ inline void ECS::RemoveComponent(Entity entity, T component)
 
 	if (!this->ComponentIsRegistered(componentName))
 	{
-		throw ComponentNotRegisteredException(componentName);
+		throw babs_ecs::ComponentNotRegisteredException(componentName);
 	}
 
 	int componentFlag = componentIndex[componentName];
@@ -318,7 +317,7 @@ inline T* ECS::GetComponent(Entity entity, T component)
 	std::string componentName = this->GetComponentName(component);
 	if (!this->ComponentIsRegistered(componentName))
 	{
-		throw ComponentNotRegisteredException(componentName);
+		throw babs_ecs::ComponentNotRegisteredException(componentName);
 	}
 
 	int componentFlag = componentIndex[componentName];
@@ -399,7 +398,7 @@ inline std::vector<Entity> ECS::EntitiesWith(Ts&& ...types)
 	{
 		if (!this->ComponentIsRegistered(componentName))
 		{
-			throw ComponentNotRegisteredException(componentName);
+			throw babs_ecs::ComponentNotRegisteredException(componentName);
 		}
 
 		auto vec = &this->individualComponentVecs[componentName];
