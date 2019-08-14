@@ -101,7 +101,7 @@ public:
 	void RemoveEntity(Entity entity)
 	{
 		uint32_t entityId = entity.UUID;
-		int originalSize = this->entities.size();
+		size_t originalSize = this->entities.size();
 		auto erase = this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), entity), this->entities.end());
 
 		if (originalSize == this->entities.size())
