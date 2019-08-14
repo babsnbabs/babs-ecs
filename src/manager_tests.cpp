@@ -25,13 +25,13 @@ TEST_SUITE("Manager Setup")
 {
 	TEST_CASE("CreateEntity returns componentless, unique entities")
 	{
-		ECS ecs;
+		babs_ecs::ECS ecs;
 
-		Entity e0 = ecs.CreateEntity();
-		Entity e1 = ecs.CreateEntity();
+		babs_ecs::Entity e0 = ecs.CreateEntity();
+		babs_ecs::Entity e1 = ecs.CreateEntity();
 		ecs.CreateEntity(); // 2
 		ecs.CreateEntity(); // 3
-		Entity e4 = ecs.CreateEntity();
+		babs_ecs::Entity e4 = ecs.CreateEntity();
 
 		REQUIRE(e0.bitfield == 0);
 		REQUIRE(e0.UUID == 0);
@@ -46,8 +46,8 @@ TEST_SUITE("Manager Setup")
 
 TEST_SUITE("Manager Components")
 {
-	ECS ecs;
-	Entity e = ecs.CreateEntity();
+	babs_ecs::ECS ecs;
+	babs_ecs::Entity e = ecs.CreateEntity();
 
 	TEST_CASE("AddComponent with unregistered component should throw")
 	{
@@ -110,12 +110,12 @@ TEST_SUITE("Manager Components")
 
 	TEST_CASE("Delete component data that doesn't exist")
 	{
-		ECS ecs;
+		babs_ecs::ECS ecs;
 
 		ecs.RegisterComponent(Identity());
 		ecs.RegisterComponent(Health());
 
-		Entity e0 = ecs.CreateEntity();
+		babs_ecs::Entity e0 = ecs.CreateEntity();
 		Identity e0Ident = Identity();
 		e0Ident.name = "babs1";
 
@@ -126,7 +126,7 @@ TEST_SUITE("Manager Components")
 
 TEST_SUITE("Manager Searching")
 {
-	ECS ecs;
+	babs_ecs::ECS ecs;
 
 	TEST_CASE("EntitiesWith finds 1 entity with Identity")
 	{
@@ -134,7 +134,7 @@ TEST_SUITE("Manager Searching")
 		ecs.RegisterComponent(Health());
 
 		// set up entity 1
-		Entity entity1 = ecs.CreateEntity();
+		babs_ecs::Entity entity1 = ecs.CreateEntity();
 
 		Identity ident{ "babs1" };
 		ecs.AddComponent(entity1, ident);
@@ -143,12 +143,12 @@ TEST_SUITE("Manager Searching")
 		ecs.AddComponent(entity1, hp1);
 
 		// set up entity 2
-		Entity entity2 = ecs.CreateEntity();
+		babs_ecs::Entity entity2 = ecs.CreateEntity();
 		Health hp2{ 50, 22 };
 		ecs.AddComponent(entity2, hp2);
 
 		// set up entity 3
-		Entity entity3 = ecs.CreateEntity();
+		babs_ecs::Entity entity3 = ecs.CreateEntity();
 
 		// run a couple searches based on the above entities
 		REQUIRE(ecs.EntitiesWith(Identity{}).size() == 1);
@@ -169,7 +169,7 @@ TEST_SUITE("Manager Searching")
 	TEST_CASE("EntitiesWith with unregistered component should throw")
 	{
 		// set up entity 1
-		Entity entity1 = ecs.CreateEntity();
+		babs_ecs::Entity entity1 = ecs.CreateEntity();
 		Health hp{ 100, 44 };
 		ecs.AddComponent<Health>(entity1, hp);
 
@@ -183,7 +183,7 @@ TEST_SUITE("Manager Searching")
 		ecs.RegisterComponent(Health());
 		ecs.RegisterComponent(Identity());
 
-		Entity e = ecs.CreateEntity();
+		babs_ecs::Entity e = ecs.CreateEntity();
 
 		// Should throw because AI is not registered
 		CHECK_THROWS_AS(ecs.EntitiesWith(Health{}, Identity{}, AI{}), const babs_ecs::ComponentNotRegisteredException);
@@ -191,9 +191,9 @@ TEST_SUITE("Manager Searching")
 
 	TEST_CASE("Manager EntitiesWith - multiple entities")
 	{
-		ECS ecs;
+		babs_ecs::ECS ecs;
 
-		Entity entity = ecs.CreateEntity();
+		babs_ecs::Entity entity = ecs.CreateEntity();
 		Identity ident;
 		ident.name = "babs1";
 		Health hp;
@@ -216,34 +216,34 @@ TEST_SUITE("Manager deleting entities")
 {
 	TEST_CASE("Deleting entities reuse their indexRegular delete")
 	{
-		ECS ecs;
+		babs_ecs::ECS ecs;
 
-		Entity zero = ecs.CreateEntity(); // 0
-		Entity one = ecs.CreateEntity(); // 1
-		Entity two = ecs.CreateEntity(); // 2
-		Entity three = ecs.CreateEntity(); // 3
+		babs_ecs::Entity zero = ecs.CreateEntity(); // 0
+		babs_ecs::Entity one = ecs.CreateEntity(); // 1
+		babs_ecs::Entity two = ecs.CreateEntity(); // 2
+		babs_ecs::Entity three = ecs.CreateEntity(); // 3
 
 		ecs.RemoveEntity(two);
 
-		Entity newTwo = ecs.CreateEntity(); // should be 2 again
+		babs_ecs::Entity newTwo = ecs.CreateEntity(); // should be 2 again
 		REQUIRE(newTwo.UUID == 2);
-		Entity four = ecs.CreateEntity();
+		babs_ecs::Entity four = ecs.CreateEntity();
 		REQUIRE(four.UUID == 4);
 	}
 
 	TEST_CASE("Deleting an entity also deletes component data")
 	{
-		ECS ecs;
+		babs_ecs::ECS ecs;
 
 		ecs.RegisterComponent(Identity());
 
-		Entity e0 = ecs.CreateEntity();
+		babs_ecs::Entity e0 = ecs.CreateEntity();
 		Identity e0Ident;
 		e0Ident.name = "babs1";
 
 		ecs.AddComponent(e0, e0Ident);
 
-		Entity e1 = ecs.CreateEntity();
+		babs_ecs::Entity e1 = ecs.CreateEntity();
 		Identity e1Ident;
 		e0Ident.name = "babs2";
 
@@ -256,12 +256,12 @@ TEST_SUITE("Manager deleting entities")
 
 	TEST_CASE("Deleting an entity also deletes component data (bigger example)")
 	{
-		ECS ecs;
+		babs_ecs::ECS ecs;
 
 		ecs.RegisterComponent(Identity());
 		ecs.RegisterComponent(Health());
 
-		Entity e0 = ecs.CreateEntity();
+		babs_ecs::Entity e0 = ecs.CreateEntity();
 		Identity e0Ident = Identity();
 		e0Ident.name = "babs1";
 		Health e0Health = Health();
@@ -271,7 +271,7 @@ TEST_SUITE("Manager deleting entities")
 		ecs.AddComponent(e0, e0Ident);
 		ecs.AddComponent(e0, e0Health);
 
-		Entity e1 = ecs.CreateEntity();
+		babs_ecs::Entity e1 = ecs.CreateEntity();
 		Identity e1Ident = Identity();
 		e1Ident.name = "babs2";
 		Health e1Health = Health();
@@ -282,7 +282,7 @@ TEST_SUITE("Manager deleting entities")
 		ecs.AddComponent(e1, e1Health);
 
 
-		Entity e2 = ecs.CreateEntity();
+		babs_ecs::Entity e2 = ecs.CreateEntity();
 		Identity e2Ident = Identity();
 		e2Ident.name = "noname";
 		Health e2Health = Health();
@@ -299,12 +299,12 @@ TEST_SUITE("Manager deleting entities")
 
 	TEST_CASE("Deleting an entity and trying to access its data after")
 	{
-		ECS ecs;
+		babs_ecs::ECS ecs;
 
 		ecs.RegisterComponent(Identity());
 		ecs.RegisterComponent(Health());
 
-		Entity e0 = ecs.CreateEntity();
+		babs_ecs::Entity e0 = ecs.CreateEntity();
 		Identity e0Ident = Identity();
 		e0Ident.name = "babs1";
 		Health e0Health = Health();

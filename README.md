@@ -59,7 +59,7 @@ Entities are easy to create and effectively just a unique identifier within the 
 
 ECS ecs;
 
-Entity entity = ecs.CreateEntity();
+babs_ecs::Entity entity = ecs.CreateEntity();
 entity.UUID // returns 0 since it's the first
 ```
 
@@ -84,7 +84,7 @@ ecs.RegisterComponent(Identity());
 Once the component is registered, instances of it can be assigned to specific entities, retrieved later, and removed. An exception will be thrown if you try to access or remove component data that doesn't exist.
 
 ```c++
-Entity player = ecs.CreateEntity();
+babs_ecs::Entity player = ecs.CreateEntity();
 Identity player_identity{"babs"};
 
 ecs.AddComponent(player, player_identity);
@@ -106,18 +106,18 @@ ECS ecs;
 
 struct CollisionEvent
 {
-    Entity e1;
-    Entity e2;
+    babs_ecs::Entity e1;
+    babs_ecs::Entity e2;
 
-    CollisionEvent(Entity e1, Entity e2) : e1(e1), e2(e2) {}
+    CollisionEvent(babs_ecs::Entity e1, babs_ecs::Entity e2) : e1(e1), e2(e2) {}
 };
 
 ecs.events.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
     std::cout << "entity " << e1.UUID << " and entity " << e2.UUID << " collided!" << std::endl; 
 });
 
-Entity e1 = ecs.CreateEntity();
-Entity e2 = ecs.CreateEntity();
+ babs_ecs::Entity e1 = ecs.CreateEntity();
+ babs_ecs::Entity e2 = ecs.CreateEntity();
 
 ecs.events.Broadcast<CollisionEvent>(CollisionEvent(e1, e2));
 ```

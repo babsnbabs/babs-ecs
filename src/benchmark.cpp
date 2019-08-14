@@ -48,7 +48,7 @@ struct Tag {};
 
 void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 {
-	ECS ecs;
+	babs_ecs::ECS ecs;
 	ecs.RegisterComponent(Identity());
 	ecs.RegisterComponent(Tag());
 
