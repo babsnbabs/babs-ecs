@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 
 // The bitfield namespace contains a type and operations with a more intuitive naming convention.

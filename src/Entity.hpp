@@ -1,5 +1,5 @@
 #pragma once
-#include "bitfield.hpp"
+#include "bitfield/bitfield.hpp"
 
 struct Entity
 {

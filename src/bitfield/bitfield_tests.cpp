@@ -1,4 +1,5 @@
 #include "doctest.h"
+
 #include "bitfield.hpp"
 
 TEST_CASE("bitfield SET")

@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <queue>
 
-#include "bitfield.hpp"
+#include "bitfield/bitfield.hpp"
 #include "Exceptions.hpp"
 #include "Entity.hpp"
 #include "pubsub/PubSub.hpp"
