@@ -1,19 +1,22 @@
 #pragma once
-#include "bitfield.hpp"
+#include "bitfield/bitfield.hpp"
 
-struct Entity
+namespace babs_ecs
 {
-	bitfield::Bitfield bitfield;
-	uint32_t UUID;
+    struct Entity
+    {
+        bitfield::Bitfield bitfield;
+        uint32_t UUID;
 
-	Entity(uint32_t uuid)
-	{
-		bitfield = 0;
-		UUID = uuid;
-	}
+        Entity(uint32_t uuid)
+        {
+            bitfield = 0;
+            UUID = uuid;
+        }
 
-	bool operator==(Entity other)
-	{
-		return this->UUID == other.UUID;
-	}
-};
+        bool operator==(Entity other)
+        {
+            return this->UUID == other.UUID;
+        }
+    };
+}

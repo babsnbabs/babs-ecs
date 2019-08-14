@@ -45,9 +45,9 @@ Everything revolves around an ECS Manager instance. This instance will keep trac
 All you need to do is create an instance of the manager and you're ready to go:
 
 ```c++
-#include "babs-ecs/Manager.hpp"
+#include "babs-ecs/ECS.hpp"
 
-ECS ecs;
+babs_ecs::ECSManager ecs;
 ```
 
 ### Entities
@@ -55,11 +55,11 @@ ECS ecs;
 Entities are easy to create and effectively just a unique identifier within the manager. It's safe to store the entities in your own systems, but make sure to go through the manager when checking the latest component availability.
 
 ```c++
-#include "babs-ecs/Manager.hpp"
+#include "babs-ecs/ECS.hpp"
 
-ECS ecs;
+babs_ecs::ECSManager ecs;
 
-Entity entity = ecs.CreateEntity();
+babs_ecs::Entity entity = ecs.CreateEntity();
 entity.UUID // returns 0 since it's the first
 ```
 
@@ -70,13 +70,13 @@ Components can be defined freely and registered with ECS for subsequent use. The
 ```c++
 #include <string>
 #include <iostream>
-#include "babs-ecs/Manager.hpp"
+#include "babs-ecs/ECS.hpp"
 
 struct Identity {
     std::string name;
 };
 
-ECS ecs;
+babs_ecs::ECSManager ecs;
 
 ecs.RegisterComponent(Identity());
 ```
@@ -84,7 +84,7 @@ ecs.RegisterComponent(Identity());
 Once the component is registered, instances of it can be assigned to specific entities, retrieved later, and removed. An exception will be thrown if you try to access or remove component data that doesn't exist.
 
 ```c++
-Entity player = ecs.CreateEntity();
+babs_ecs::Entity player = ecs.CreateEntity();
 Identity player_identity{"babs"};
 
 ecs.AddComponent(player, player_identity);
@@ -100,33 +100,33 @@ ecs.RemoveComponent(player, Identity());
 Event systems work well with ECS for de-coupled communication between systems. Events are as easy as components to work with. These don't require registration, and you can subscribe and broadcast at any time through the event manager provided by the ECS instance.
 
 ```c++
-#include "babs-ecs/Manager.hpp"
+#include "babs-ecs/ECS.hpp"
 
-ECS ecs;
+babs_ecs::ECSManager ecs;
 
 struct CollisionEvent
 {
-    Entity e1;
-    Entity e2;
+    babs_ecs::Entity e1;
+    babs_ecs::Entity e2;
 
-    CollisionEvent(Entity e1, Entity e2) : e1(e1), e2(e2) {}
+    CollisionEvent(babs_ecs::Entity e1, babs_ecs::Entity e2) : e1(e1), e2(e2) {}
 };
 
-ecs.eventManager.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
+ecs.events.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
     std::cout << "entity " << e1.UUID << " and entity " << e2.UUID << " collided!" << std::endl; 
 });
 
-Entity e1 = ecs.CreateEntity();
-Entity e2 = ecs.CreateEntity();
+ babs_ecs::Entity e1 = ecs.CreateEntity();
+ babs_ecs::Entity e2 = ecs.CreateEntity();
 
-ecs.eventManager.Broadcast<CollisionEvent>(CollisionEvent(e1, e2));
+ecs.events.Broadcast<CollisionEvent>(CollisionEvent(e1, e2));
 ```
 
 The following events can be subscribed to, and are broadcasted by ECS automatically:
 
-* `EntityCreated` - when a new entity is created, provides a copy of the entity
-* `ComponentAdded<MyComponent>` - when a component is added to an entity, provides the entity and component data
-* `ComponentRemoved<MyComponent>` - when a component is removed from an entity, provides the entity and component data
+* `babs_ecs::EntityCreated` - when a new entity is created, provides a copy of the entity
+* `babs_ecs::ComponentAdded<MyComponent>` - when a component is added to an entity, provides the entity and component data
+* `babs_ecs::ComponentRemoved<MyComponent>` - when a component is removed from an entity, provides the entity and component data
 
 
 ## Special Thanks
