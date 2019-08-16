@@ -151,14 +151,14 @@ TEST_SUITE("Manager Searching")
 		babs_ecs::Entity entity3 = ecs.CreateEntity();
 
 		// run a couple searches based on the above entities
-		REQUIRE(ecs.EntitiesWith(Identity{}).size() == 1);
-		REQUIRE(ecs.EntitiesWith(Health{}).size() == 2);
+		REQUIRE(ecs.EntitiesWith<Identity>().size() == 1);
+		REQUIRE(ecs.EntitiesWith<Health>().size() == 2);
 		REQUIRE(ecs.EntitiesWith().size() == 3);
 	}
 
 	TEST_CASE("EntitysWith finds 2 entities with Health")
 	{
-		REQUIRE(ecs.EntitiesWith(Health{}).size() == 2);
+		REQUIRE(ecs.EntitiesWith<Health>().size() == 2);
 	}
 
 	TEST_CASE("EntitiesWith finds all entities when no components are specified")
@@ -186,7 +186,7 @@ TEST_SUITE("Manager Searching")
 		babs_ecs::Entity e = ecs.CreateEntity();
 
 		// Should throw because AI is not registered
-		CHECK_THROWS_AS(ecs.EntitiesWith(Health{}, Identity{}, AI{}), const babs_ecs::ComponentNotRegisteredException);
+		CHECK_THROWS_AS(ecs.EntitiesWith<AI>(), const babs_ecs::ComponentNotRegisteredException);
 	}
 
 	TEST_CASE("Manager EntitiesWith - multiple entities")
@@ -206,7 +206,7 @@ TEST_SUITE("Manager Searching")
 		ecs.AddComponent(entity, ident);
 		ecs.AddComponent(entity, hp);
 
-		auto healthAndIdentity = ecs.EntitiesWith(Identity(), Health());
+		auto healthAndIdentity = ecs.EntitiesWith<Identity, Health>();
 
 		REQUIRE(healthAndIdentity.size() == 1);
 	}
@@ -251,7 +251,7 @@ TEST_SUITE("Manager deleting entities")
 
 		ecs.RemoveEntity(e0);
 
-		REQUIRE(ecs.EntitiesWith(Identity()).size() == 1);
+		REQUIRE(ecs.EntitiesWith<Identity>().size() == 1);
 	}
 
 	TEST_CASE("Deleting an entity also deletes component data (bigger example)")
@@ -294,7 +294,7 @@ TEST_SUITE("Manager deleting entities")
 
 		ecs.RemoveEntity(e1);
 
-		REQUIRE(ecs.EntitiesWith(Identity(), Health()).size() == 2);
+		REQUIRE(ecs.EntitiesWith<Identity, Health>().size() == 2);
 	}
 
 	TEST_CASE("Deleting an entity and trying to access its data after")

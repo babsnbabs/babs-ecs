@@ -97,7 +97,7 @@ namespace babs_ecs
         T* GetComponent(Entity entity);
 
         template<typename... Ts>
-        std::vector<Entity> EntitiesWith(Ts&& ... types);
+        std::vector<Entity> EntitiesWith();
 
         template <typename T>
         bool HasComponent(Entity entity);
@@ -150,13 +150,8 @@ namespace babs_ecs
         template <typename T>
         std::string GetComponentName();
 
-        std::vector<std::string>* GetComponentNames(std::vector<std::string>* names);
-
-        template <typename T>
-        std::vector<std::string>* GetComponentNames(std::vector<std::string>* names, T type);
-
-        template <typename T, typename ...Ts>
-        std::vector<std::string>* GetComponentNames(std::vector<std::string>* names, T type, Ts... types);
+        template <typename T, typename... Ts>
+        std::vector<std::string> HotNewGetComponentNames();
 
         bool ComponentIsRegistered(std::string componentName)
         {
@@ -193,7 +188,7 @@ namespace babs_ecs
     template<typename T>
     inline void ECSManager::AddComponent(Entity entity, T component)
     {
-        std::string componentName = this->GetComponentName(component);
+        std::string componentName = this->GetComponentName<T>();
 
         if (!this->ComponentIsRegistered(componentName))
         {
@@ -346,46 +341,38 @@ namespace babs_ecs
         return nullptr;
     }
 
-    // This is the base case of the GetComponentNames recursion, it exists only to stop the recursion.
-    inline std::vector<std::string>* ECSManager::GetComponentNames(std::vector<std::string>* names)
+    template<typename T, typename... Ts>
+    inline std::vector<std::string> ECSManager::HotNewGetComponentNames()
     {
+        std::vector<std::string> names;
+
+        if constexpr(sizeof...(Ts) == 0)
+        {
+            names.push_back(typeid(T).name());
+        }
+        else
+        {
+            names = HotNewGetComponentNames<Ts...>();
+            names.push_back(HotNewGetComponentNames<T>()[0]);
+        }
+
         return names;
-    }
-
-    // This ends up being either the entry point and/or 2nd to last case of the GetComponentNames recursion.
-    // It will call the function above.
-    template <typename T>
-    inline std::vector<std::string>* ECSManager::GetComponentNames(std::vector<std::string>* names, T type)
-    {
-        std::string name = this->GetComponentName(std::forward<T>(type));
-        names->push_back(name);
-
-        return names;
-    }
-
-    // This is an entry point for the GetComponentNames recursion. It will call of version of itself
-    // or the function above.
-    template <typename T, typename ...Ts>
-    inline  std::vector<std::string>* ECSManager::GetComponentNames(std::vector<std::string>* names, T type, Ts... types)
-    {
-        std::string name = this->GetComponentName(std::forward<T>(type));
-        names->push_back(name);
-
-        // Continue getting component neames until we are out of template arguments and return the list
-        return this->GetComponentNames(names, std::forward<Ts>(types)...);
     }
 
     // Returns a list of Entity pointers of entities matching the provided list of component types.
     //
     // If no component types are provided, all entities will be returned.
     // 
-    // Typical usage: auto entities = ecs.EntitiesWith(Identity(), Health());
+    // Typical usage: auto entities = ecs.EntitiesWith<Identity, Health>();
     template<typename ...Ts>
-    inline std::vector<Entity> ECSManager::EntitiesWith(Ts&& ...types)
+    inline std::vector<Entity> ECSManager::EntitiesWith()
     {
         // build bitfield flags for this search
         std::vector<std::string> componentNames;
-        this->GetComponentNames(&componentNames, std::forward<Ts>(types)...);
+        if constexpr(sizeof...(Ts) > 0)
+        {
+            componentNames = this->HotNewGetComponentNames<Ts...>();
+        }
 
         // if no components were provided, we'll return all entities
         if (componentNames.size() == 0)
@@ -443,12 +430,6 @@ namespace babs_ecs
     inline bool ECSManager::HasComponent(Entity entity)
     {
         return this->GetComponent<T>(entity) != nullptr ? true : false;
-    }
-
-    template<typename T>
-    inline std::string ECSManager::GetComponentName(T component)
-    {
-        return typeid(component).name();
     }
 
     template<typename T>
