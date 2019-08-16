@@ -91,7 +91,7 @@ ecs.RemoveComponent<Identity>(player);
 
 ### Searching
 
-Now for the meat and potatoes of searching through ECS! When querying ECS, you will be returned a vector of Entity's:
+Now for the meat and potatoes of searching through ECS! When querying ECS, you will be returned a vector of entities:
 
 ```c++
 for (babs_ecs::Entity entity : ecs.EntitiesWith<Identity>())
