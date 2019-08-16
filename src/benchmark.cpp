@@ -49,8 +49,8 @@ struct Tag {};
 void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 {
 	babs_ecs::ECSManager ecs;
-	ecs.RegisterComponent(Identity());
-	ecs.RegisterComponent(Tag());
+	ecs.RegisterComponent<Identity>();
+	ecs.RegisterComponent<Tag>();
 
 	{
 		Timer timer;
@@ -69,7 +69,7 @@ void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 
         std::uint64_t sum = 0;
         for (int i = 0; i < iterationCount; ++i) {
-            auto entities = ecs.EntitiesWith(Identity{}, Tag{});
+            auto entities = ecs.EntitiesWith<Identity, Tag>();
             for (auto entity : entities)
             {
                 sum++;

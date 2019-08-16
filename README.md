@@ -52,15 +52,15 @@ babs_ecs::ECSManager ecs;
 
 ### Entities
 
-Entities are easy to create and effectively just a unique identifier within the manager. It's safe to store the entities in your own systems, but make sure to go through the manager when checking the latest component availability.
+Entities are easy to create and effectively just a unique identifier within the manager. It's safe to store the entities in your own systems, but make sure to go through the manager when checking the latest component availability. A `babs_ecs::EntityNotFoundException` will be thrown if a removed or invalid Entity is used.
 
 ```c++
-#include "babs-ecs/ECS.hpp"
-
-babs_ecs::ECSManager ecs;
-
 babs_ecs::Entity entity = ecs.CreateEntity();
 entity.UUID // returns 0 since it's the first
+
+ecs.RemoveEntity();
+entity = ecs.CreateEntity();
+entity.UUID // returns 0 again as ECS will reclaim UUIDs
 ```
 
 ### Components
@@ -68,17 +68,11 @@ entity.UUID // returns 0 since it's the first
 Components can be defined freely and registered with ECS for subsequent use. They can be as complicated as you need, so feel free to add methods.
 
 ```c++
-#include <string>
-#include <iostream>
-#include "babs-ecs/ECS.hpp"
-
 struct Identity {
     std::string name;
 };
 
-babs_ecs::ECSManager ecs;
-
-ecs.RegisterComponent(Identity());
+ecs.RegisterComponent<Identity>();
 ```
 
 Once the component is registered, instances of it can be assigned to specific entities, retrieved later, and removed. An exception will be thrown if you try to access or remove component data that doesn't exist.
@@ -89,20 +83,33 @@ Identity player_identity{"babs"};
 
 ecs.AddComponent(player, player_identity);
 
-Identity ident = ecs.GetComponent(Identity());
+Identity ident = ecs.GetComponent<Identity>();
 std::cout << "players name is " << ident.name << std::endl;
 
-ecs.RemoveComponent(player, Identity());
+ecs.RemoveComponent<Identity>(player);
 ```
+
+### Searching
+
+Now for the meat and potatoes of searching through ECS! When querying ECS, you will be returned a vector of entities:
+
+```c++
+for (babs_ecs::Entity entity : ecs.EntitiesWith<Identity>())
+{
+    Identity* identity = ecs.GetComponent<Identity>(entity);
+    std::cout << "entity " << entity.UUID << " is named " << identity.name << std::endl;
+}
+```
+
+The `EntitiesWith` function can be called with 0+ component types. `EntitiesWith()` will return all entities in ECS, whereas `EntitiesWith<Identity, Health>()` will only return entities with both Identity and Health components.
+
+Tip: When possible, include the most uncommon component type that still returns all the desired entities for a particular search. This can result in searches that are multiple orders of mangitude faster!
 
 ### Events
 
 Event systems work well with ECS for de-coupled communication between systems. Events are as easy as components to work with. These don't require registration, and you can subscribe and broadcast at any time through the event manager provided by the ECS instance.
 
 ```c++
-#include "babs-ecs/ECS.hpp"
-
-babs_ecs::ECSManager ecs;
 
 struct CollisionEvent
 {
