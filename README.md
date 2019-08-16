@@ -78,7 +78,7 @@ struct Identity {
 
 babs_ecs::ECSManager ecs;
 
-ecs.RegisterComponent(Identity());
+ecs.RegisterComponent<Identity>();
 ```
 
 Once the component is registered, instances of it can be assigned to specific entities, retrieved later, and removed. An exception will be thrown if you try to access or remove component data that doesn't exist.
@@ -89,10 +89,10 @@ Identity player_identity{"babs"};
 
 ecs.AddComponent(player, player_identity);
 
-Identity ident = ecs.GetComponent(Identity());
+Identity ident = ecs.GetComponent<Identity>();
 std::cout << "players name is " << ident.name << std::endl;
 
-ecs.RemoveComponent(player, Identity());
+ecs.RemoveComponent<Identity>(player);
 ```
 
 ### Events

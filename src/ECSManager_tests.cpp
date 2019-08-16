@@ -56,39 +56,39 @@ TEST_SUITE("Manager Components")
 
 	TEST_CASE("AddComponent works after component is registered")
 	{
-		ecs.RegisterComponent(Health());
+		ecs.RegisterComponent<Health>();
 		CHECK_NOTHROW(ecs.AddComponent(e, Health{ 10, 5 }));
 	}
 
 	TEST_CASE("HasComponent can find added components")
 	{
-		ecs.RegisterComponent(Identity());
+		ecs.RegisterComponent<Identity>();
 
-		REQUIRE(ecs.HasComponent(e, Health()) == true);
-		REQUIRE(ecs.HasComponent(e, Identity()) == false);
+		REQUIRE(ecs.HasComponent<Health>(e) == true);
+		REQUIRE(ecs.HasComponent<Identity>(e) == false);
 	}
 
 	TEST_CASE("GetComponent returns expected data")
 	{
-		Health* h = ecs.GetComponent(e, Health());
+		Health* h = ecs.GetComponent<Health>(e);
 		REQUIRE(h->max == 10);
 		REQUIRE(h->current == 5);
 	}
 
 	TEST_CASE("Modified component data persists")
 	{
-		Health* h = ecs.GetComponent(e, Health());
+		Health* h = ecs.GetComponent<Health>(e);
 		h->max = 15;
 		h->current = 12;
 
-		h = ecs.GetComponent(e, Health());
+		h = ecs.GetComponent<Health>(e);
 		REQUIRE(h->max == 15);
 		REQUIRE(h->current == 12);
 	}
 
 	TEST_CASE("GetComponent with unregistered component throws")
 	{
-		CHECK_THROWS_AS(ecs.GetComponent(e, AI()), const babs_ecs::ComponentNotRegisteredException);
+		CHECK_THROWS_AS(ecs.GetComponent<AI>(e), const babs_ecs::ComponentNotRegisteredException);
 	}
 
 	TEST_CASE("RemoveComponent removes the data")
@@ -97,14 +97,14 @@ TEST_SUITE("Manager Components")
 		ecs.AddComponent(e, Identity{ "babs2" });
 
 		// remove the existing health
-		ecs.RemoveComponent(e, Health());
+		ecs.RemoveComponent<Health>(e);
 
 		// verify health is gone
-		REQUIRE(ecs.HasComponent(e, Health()) == false);
-		REQUIRE(ecs.GetComponent(e, Health()) == nullptr);
+		REQUIRE(ecs.HasComponent<Health>(e) == false);
+		REQUIRE(ecs.GetComponent<Health>(e) == nullptr);
 
 		// still has Identity
-		auto identity = ecs.GetComponent(e, Identity());
+		auto identity = ecs.GetComponent<Identity>(e);
 		REQUIRE(identity->name == "babs2");
 	}
 
@@ -112,15 +112,15 @@ TEST_SUITE("Manager Components")
 	{
 		babs_ecs::ECSManager ecs;
 
-		ecs.RegisterComponent(Identity());
-		ecs.RegisterComponent(Health());
+		ecs.RegisterComponent<Identity>();
+		ecs.RegisterComponent<Health>();
 
 		babs_ecs::Entity e0 = ecs.CreateEntity();
 		Identity e0Ident = Identity();
 		e0Ident.name = "babs1";
 
 		// Nothing to really assert, it just shouldn't blow up.
-		ecs.RemoveComponent(e0, Health());
+		ecs.RemoveComponent<Health>(e0);
 	}
 }
 
@@ -130,8 +130,8 @@ TEST_SUITE("Manager Searching")
 
 	TEST_CASE("EntitiesWith finds 1 entity with Identity")
 	{
-		ecs.RegisterComponent(Identity());
-		ecs.RegisterComponent(Health());
+		ecs.RegisterComponent<Identity>();
+		ecs.RegisterComponent<Health>();
 
 		// set up entity 1
 		babs_ecs::Entity entity1 = ecs.CreateEntity();
@@ -174,14 +174,14 @@ TEST_SUITE("Manager Searching")
 		ecs.AddComponent<Health>(entity1, hp);
 
 		// Getting component
-		Health* storedHp = ecs.GetComponent(entity1, Health());
+		Health* storedHp = ecs.GetComponent<Health>(entity1);
 
 		REQUIRE(storedHp != nullptr);
 		REQUIRE(storedHp->current == hp.current);
 		REQUIRE(storedHp->max == hp.max);
 
-		ecs.RegisterComponent(Health());
-		ecs.RegisterComponent(Identity());
+		ecs.RegisterComponent<Health>();
+		ecs.RegisterComponent<Identity>();
 
 		babs_ecs::Entity e = ecs.CreateEntity();
 
@@ -200,8 +200,8 @@ TEST_SUITE("Manager Searching")
 		hp.current = 100;
 		hp.max = 100;
 
-		ecs.RegisterComponent(Identity());
-		ecs.RegisterComponent(Health());
+		ecs.RegisterComponent<Identity>();
+		ecs.RegisterComponent<Health>();
 
 		ecs.AddComponent(entity, ident);
 		ecs.AddComponent(entity, hp);
@@ -235,7 +235,7 @@ TEST_SUITE("Manager deleting entities")
 	{
 		babs_ecs::ECSManager ecs;
 
-		ecs.RegisterComponent(Identity());
+		ecs.RegisterComponent<Identity>();
 
 		babs_ecs::Entity e0 = ecs.CreateEntity();
 		Identity e0Ident;
@@ -258,8 +258,8 @@ TEST_SUITE("Manager deleting entities")
 	{
 		babs_ecs::ECSManager ecs;
 
-		ecs.RegisterComponent(Identity());
-		ecs.RegisterComponent(Health());
+		ecs.RegisterComponent<Identity>();
+		ecs.RegisterComponent<Health>();
 
 		babs_ecs::Entity e0 = ecs.CreateEntity();
 		Identity e0Ident = Identity();
@@ -301,8 +301,8 @@ TEST_SUITE("Manager deleting entities")
 	{
 		babs_ecs::ECSManager ecs;
 
-		ecs.RegisterComponent(Identity());
-		ecs.RegisterComponent(Health());
+		ecs.RegisterComponent<Identity>();
+		ecs.RegisterComponent<Health>();
 
 		babs_ecs::Entity e0 = ecs.CreateEntity();
 		Identity e0Ident = Identity();
@@ -313,7 +313,7 @@ TEST_SUITE("Manager deleting entities")
 
 		ecs.RemoveEntity(e0);
 
-		Identity* ident = ecs.GetComponent(e0, Identity());
+		Identity* ident = ecs.GetComponent<Identity>(e0);
 
 		REQUIRE(ident == nullptr);
 	}

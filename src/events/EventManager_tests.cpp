@@ -84,7 +84,7 @@ TEST_SUITE("Event Manager fires default ECS events")
 	TEST_CASE("Component Added")
 	{
 		bool eventCalled = false;
-		ecs.RegisterComponent(Identity());
+		ecs.RegisterComponent<Identity>();
 
 		e0Identity.name = "Babs1";
 		ecs.events.Subscribe<babs_ecs::ComponentAdded<Identity>>([&](const babs_ecs::ComponentAdded<Identity>& e) {
@@ -100,7 +100,7 @@ TEST_SUITE("Event Manager fires default ECS events")
 	TEST_CASE("Component Removed")
 	{
 		bool eventCalled = false;
-		ecs.RegisterComponent(Identity());
+		ecs.RegisterComponent<Identity>();
 
 		e0Identity.name = "Babs1";
 		ecs.AddComponent(e0, e0Identity);
@@ -110,7 +110,7 @@ TEST_SUITE("Event Manager fires default ECS events")
 			eventCalled = true;
 			});
 
-		ecs.RemoveComponent(e0, Identity());
+		ecs.RemoveComponent<Identity>(e0);
 
 		REQUIRE(eventCalled == true);
 	}

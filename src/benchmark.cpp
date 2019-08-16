@@ -49,8 +49,8 @@ struct Tag {};
 void babsEcsTest(int entityCount, int iterationCount, int tagProb)
 {
 	babs_ecs::ECSManager ecs;
-	ecs.RegisterComponent(Identity());
-	ecs.RegisterComponent(Tag());
+	ecs.RegisterComponent<Identity>();
+	ecs.RegisterComponent<Tag>();
 
 	{
 		Timer timer;

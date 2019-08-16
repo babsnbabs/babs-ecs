@@ -85,22 +85,22 @@ namespace babs_ecs
         }
 
         template <typename T>
-        void RegisterComponent(T component);
+        void RegisterComponent();
 
         template <typename T>
         void AddComponent(Entity entity, T component);
 
         template <typename T>
-        void RemoveComponent(Entity entity, T component);
+        void RemoveComponent(Entity entity);
 
         template <typename T>
-        T* GetComponent(Entity entity, T component);
+        T* GetComponent(Entity entity);
 
         template<typename... Ts>
         std::vector<Entity> EntitiesWith(Ts&& ... types);
 
         template <typename T>
-        bool HasComponent(Entity entity, T component);
+        bool HasComponent(Entity entity);
 
         void RemoveEntity(Entity entity)
         {
@@ -147,6 +147,9 @@ namespace babs_ecs
         template <typename T>
         std::string GetComponentName(T component);
 
+        template <typename T>
+        std::string GetComponentName();
+
         std::vector<std::string>* GetComponentNames(std::vector<std::string>* names);
 
         template <typename T>
@@ -165,11 +168,11 @@ namespace babs_ecs
     //
     // Until this is called, components cannot be added/retrieved.
     template<typename T>
-    inline void ECSManager::RegisterComponent(T component)
+    inline void ECSManager::RegisterComponent()
     {
         // Example: "class TestComponent", "struct Health", "struct Identity"
         // using typeid(T).name() means we don't need to rely on ToString();
-        std::string componentName = this->GetComponentName(component);
+        std::string componentName = this->GetComponentName<T>();
 
         if (components.find(componentName) == components.end())
         {
@@ -249,9 +252,9 @@ namespace babs_ecs
 
     // GetComponent will return a pointer to the entities component data. Modifications to the component will persist.
     template<typename T>
-    inline void ECSManager::RemoveComponent(Entity entity, T component)
+    inline void ECSManager::RemoveComponent(Entity entity)
     {
-        std::string componentName = this->GetComponentName(component);
+        std::string componentName = this->GetComponentName<T>();
 
         if (!this->ComponentIsRegistered(componentName))
         {
@@ -317,9 +320,9 @@ namespace babs_ecs
     }
 
     template<typename T>
-    inline T* ECSManager::GetComponent(Entity entity, T component)
+    inline T* ECSManager::GetComponent(Entity entity)
     {
-        std::string componentName = this->GetComponentName(component);
+        std::string componentName = this->GetComponentName<T>();
         if (!this->ComponentIsRegistered(componentName))
         {
             throw babs_ecs::ComponentNotRegisteredException(componentName);
@@ -437,15 +440,21 @@ namespace babs_ecs
     // Returns the compiler created string for this component. We don't actually care what the
     // string is, but generally it seems to match the type name.
     template<typename T>
-    inline bool ECSManager::HasComponent(Entity entity, T component)
+    inline bool ECSManager::HasComponent(Entity entity)
     {
-        return this->GetComponent(entity, component) != nullptr ? true : false;
+        return this->GetComponent<T>(entity) != nullptr ? true : false;
     }
 
     template<typename T>
     inline std::string ECSManager::GetComponentName(T component)
     {
         return typeid(component).name();
+    }
+
+    template<typename T>
+    inline std::string ECSManager::GetComponentName()
+    {
+        return typeid(T).name();
     }
 
 }
