@@ -145,13 +145,10 @@ namespace babs_ecs
         std::map<std::string, std::vector<Entity>> individualComponentVecs;
 
         template <typename T>
-        std::string GetComponentName(T component);
-
-        template <typename T>
         std::string GetComponentName();
 
         template <typename T, typename... Ts>
-        std::vector<std::string> HotNewGetComponentNames();
+        std::vector<std::string> GetComponentNames();
 
         bool ComponentIsRegistered(std::string componentName)
         {
@@ -342,18 +339,20 @@ namespace babs_ecs
     }
 
     template<typename T, typename... Ts>
-    inline std::vector<std::string> ECSManager::HotNewGetComponentNames()
+    inline std::vector<std::string> ECSManager::GetComponentNames()
     {
         std::vector<std::string> names;
 
         if constexpr(sizeof...(Ts) == 0)
         {
+            // this is effectively the "base case" if you were to think of this like recursion
             names.push_back(typeid(T).name());
         }
         else
         {
-            names = HotNewGetComponentNames<Ts...>();
-            names.push_back(HotNewGetComponentNames<T>()[0]);
+            // we must still have more component names to retrieve, continue templating
+            names = GetComponentNames<Ts...>();
+            names.push_back(GetComponentNames<T>()[0]);
         }
 
         return names;
@@ -371,7 +370,7 @@ namespace babs_ecs
         std::vector<std::string> componentNames;
         if constexpr(sizeof...(Ts) > 0)
         {
-            componentNames = this->HotNewGetComponentNames<Ts...>();
+            componentNames = this->GetComponentNames<Ts...>();
         }
 
         // if no components were provided, we'll return all entities
