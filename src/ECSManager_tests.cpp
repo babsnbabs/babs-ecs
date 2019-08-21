@@ -110,17 +110,17 @@ TEST_SUITE("Manager Components")
 
 	TEST_CASE("Delete component data that doesn't exist")
 	{
-		babs_ecs::ECSManager ecs;
+		babs_ecs::ECSManager localEcs;
 
-		ecs.RegisterComponent<Identity>();
-		ecs.RegisterComponent<Health>();
+		localEcs.RegisterComponent<Identity>();
+		localEcs.RegisterComponent<Health>();
 
-		babs_ecs::Entity e0 = ecs.CreateEntity();
+		babs_ecs::Entity e0 = localEcs.CreateEntity();
 		Identity e0Ident = Identity();
 		e0Ident.name = "babs1";
 
 		// Nothing to really assert, it just shouldn't blow up.
-		ecs.RemoveComponent<Health>(e0);
+		localEcs.RemoveComponent<Health>(e0);
 	}
 }
 
@@ -191,22 +191,22 @@ TEST_SUITE("Manager Searching")
 
 	TEST_CASE("Manager EntitiesWith - multiple entities")
 	{
-		babs_ecs::ECSManager ecs;
+		babs_ecs::ECSManager localEcs;
 
-		babs_ecs::Entity entity = ecs.CreateEntity();
+		babs_ecs::Entity entity = localEcs.CreateEntity();
 		Identity ident;
 		ident.name = "babs1";
 		Health hp;
 		hp.current = 100;
 		hp.max = 100;
 
-		ecs.RegisterComponent<Identity>();
-		ecs.RegisterComponent<Health>();
+		localEcs.RegisterComponent<Identity>();
+		localEcs.RegisterComponent<Health>();
 
-		ecs.AddComponent(entity, ident);
-		ecs.AddComponent(entity, hp);
+		localEcs.AddComponent(entity, ident);
+		localEcs.AddComponent(entity, hp);
 
-		auto healthAndIdentity = ecs.EntitiesWith<Identity, Health>();
+		auto healthAndIdentity = localEcs.EntitiesWith<Identity, Health>();
 
 		REQUIRE(healthAndIdentity.size() == 1);
 	}
