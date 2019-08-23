@@ -65,7 +65,7 @@ TEST_SUITE("Event Manager")
 TEST_SUITE("Event Manager fires default ECS events")
 {
 	babs_ecs::ECSManager ecs;
-	babs_ecs::Entity e0 = babs_ecs::Entity(-1);
+	babs_ecs::Entity e0 = babs_ecs::Entity(0);
 	Identity e0Identity;
 
 	TEST_CASE("Entity created")
