@@ -56,7 +56,7 @@ namespace babs_ecs
 		ECSManager()
 		{
 			this->bitIndex = 1;
-			this->entityIndex = 1;
+			this->entityIndex = 1;  // 0 is used for default/dummy entity
 		}
 
 		// CreateEntity will initialize and return a new entity with no components.
