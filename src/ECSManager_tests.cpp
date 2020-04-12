@@ -227,17 +227,17 @@ TEST_SUITE("Manager deleting entities")
 	{
 		babs_ecs::ECSManager ecs;
 
-		babs_ecs::Entity zero = ecs.CreateEntity(); // 1
-		babs_ecs::Entity one = ecs.CreateEntity(); // 2
-		babs_ecs::Entity two = ecs.CreateEntity(); // 3
-		babs_ecs::Entity three = ecs.CreateEntity(); // 4
+		babs_ecs::Entity one = ecs.CreateEntity();
+		babs_ecs::Entity two = ecs.CreateEntity();
+		babs_ecs::Entity three = ecs.CreateEntity();
+		babs_ecs::Entity four = ecs.CreateEntity();
 
 		ecs.RemoveEntity(two);
 
 		babs_ecs::Entity newTwo = ecs.CreateEntity(); // should be 2 again
-		REQUIRE(newTwo.UUID == 3);
-		babs_ecs::Entity four = ecs.CreateEntity();
-		REQUIRE(four.UUID == 5);
+		REQUIRE(newTwo.UUID == 2);
+		babs_ecs::Entity five = ecs.CreateEntity();
+		REQUIRE(five.UUID == 5);
 	}
 
 	TEST_CASE("Deleting an entity also deletes component data")
