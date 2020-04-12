@@ -23,24 +23,33 @@ struct Health
 
 TEST_SUITE("Manager Setup")
 {
+    TEST_CASE("CreateEntity starts with entity UUID of 1")
+    {
+        babs_ecs::ECSManager ecs;
+
+        babs_ecs::Entity e = ecs.CreateEntity();
+
+        REQUIRE(e.UUID == 1);
+    }
+
 	TEST_CASE("CreateEntity returns componentless, unique entities")
 	{
 		babs_ecs::ECSManager ecs;
 
 		babs_ecs::Entity e0 = ecs.CreateEntity();
 		babs_ecs::Entity e1 = ecs.CreateEntity();
-		ecs.CreateEntity(); // 2
 		ecs.CreateEntity(); // 3
+		ecs.CreateEntity(); // 4
 		babs_ecs::Entity e4 = ecs.CreateEntity();
 
 		REQUIRE(e0.bitfield == 0);
-		REQUIRE(e0.UUID == 0);
+		REQUIRE(e0.UUID == 1);
 
 		REQUIRE(e1.bitfield == 0);
-		REQUIRE(e1.UUID == 1);
+		REQUIRE(e1.UUID == 2);
 
 		REQUIRE(e4.bitfield == 0);
-		REQUIRE(e4.UUID == 4);
+		REQUIRE(e4.UUID == 5);
 	}
 }
 
@@ -218,17 +227,17 @@ TEST_SUITE("Manager deleting entities")
 	{
 		babs_ecs::ECSManager ecs;
 
-		babs_ecs::Entity zero = ecs.CreateEntity(); // 0
-		babs_ecs::Entity one = ecs.CreateEntity(); // 1
-		babs_ecs::Entity two = ecs.CreateEntity(); // 2
-		babs_ecs::Entity three = ecs.CreateEntity(); // 3
+		babs_ecs::Entity zero = ecs.CreateEntity(); // 1
+		babs_ecs::Entity one = ecs.CreateEntity(); // 2
+		babs_ecs::Entity two = ecs.CreateEntity(); // 3
+		babs_ecs::Entity three = ecs.CreateEntity(); // 4
 
 		ecs.RemoveEntity(two);
 
 		babs_ecs::Entity newTwo = ecs.CreateEntity(); // should be 2 again
-		REQUIRE(newTwo.UUID == 2);
+		REQUIRE(newTwo.UUID == 3);
 		babs_ecs::Entity four = ecs.CreateEntity();
-		REQUIRE(four.UUID == 4);
+		REQUIRE(four.UUID == 5);
 	}
 
 	TEST_CASE("Deleting an entity also deletes component data")

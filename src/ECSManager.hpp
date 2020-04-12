@@ -56,13 +56,13 @@ namespace babs_ecs
 		ECSManager()
 		{
 			this->bitIndex = 1;
-			this->entityIndex = 0;
+			this->entityIndex = 1;
 		}
 
 		// CreateEntity will initialize and return a new entity with no components.
 		Entity CreateEntity()
 		{
-			uint32_t entityId = 0;
+			uint32_t entityId = 1;
 
 			if (!this->unusedEntityIndices.empty())
 			{

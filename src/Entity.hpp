@@ -8,6 +8,8 @@ namespace babs_ecs
         bitfield::Bitfield bitfield;
         uint32_t UUID;
 
+        Entity() : Entity(0) {}
+
         Entity(uint32_t uuid)
         {
             bitfield = 0;

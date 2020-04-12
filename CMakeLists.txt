@@ -32,7 +32,9 @@ link_directories(
 # tests
 add_executable(tests
     src/tests.cpp
+    src/Entity_tests.cpp
     src/ECSManager_tests.cpp
+    src/babs_ecs_tests.cpp
     src/bitfield/bitfield_tests.cpp
     src/events/EventManager_tests.cpp
 )
