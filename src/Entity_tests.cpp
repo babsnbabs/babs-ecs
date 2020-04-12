@@ -17,7 +17,7 @@ TEST_SUITE("Entity class")
 
     TEST_CASE("Entity can be used in a map container")
     {
-        std::unordered_map<char, babs_ecs::Entity> items = {};
+        std::map<char, babs_ecs::Entity> items = {};
         items['a'] = babs_ecs::Entity(5);
 
         REQUIRE(items['a'].UUID == 5);
