@@ -72,7 +72,7 @@ TEST_SUITE("Event Manager fires default ECS events")
 	{
 		bool entityCreatedEventFired = false;
 		ecs.events.Subscribe<babs_ecs::EntityCreated>([&](const babs_ecs::EntityCreated& e) {
-			REQUIRE(e.entity.UUID == 0);
+			REQUIRE(e.entity.UUID == 1);
 			entityCreatedEventFired = true;
 			});
 
