@@ -83,7 +83,7 @@ Identity player_identity{"babs"};
 
 ecs.AddComponent(player, player_identity);
 
-Identity ident = ecs.GetComponent<Identity>();
+Identity ident = ecs.GetComponent<Identity>(player);
 std::cout << "players name is " << ident.name << std::endl;
 
 ecs.RemoveComponent<Identity>(player);
