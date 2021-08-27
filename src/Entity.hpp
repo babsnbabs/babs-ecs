@@ -16,9 +16,34 @@ namespace babs_ecs
             UUID = uuid;
         }
 
-        bool operator==(Entity other)
+        bool operator==(Entity other) const
         {
             return this->UUID == other.UUID;
+        }
+
+        bool operator!=(Entity other) const
+        {
+            return !(this->UUID == other.UUID);
+        }
+
+        bool operator<(const Entity &rhs ) const
+        {
+            return (this->UUID < rhs.UUID);
+        }
+
+        bool operator>(const Entity &rhs ) const
+        {
+            return !(this->UUID < rhs.UUID);
+        }
+
+        bool operator<=(const Entity &rhs) const
+        {
+            return !(this->UUID > rhs.UUID);
+        }
+
+        bool operator>=(const Entity &rhs) const
+        {
+            return !(this->UUID < rhs.UUID);
         }
     };
 }
