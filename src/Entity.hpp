@@ -20,5 +20,10 @@ namespace babs_ecs
         {
             return this->UUID == other.UUID;
         }
+        
+        bool operator<(const Entity &rhs ) const
+        {
+            return (this->UUID < rhs.UUID);
+        }
     };
 }
