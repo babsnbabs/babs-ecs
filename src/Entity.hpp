@@ -38,12 +38,12 @@ namespace babs_ecs
 
         bool operator<=(const Entity &rhs) const
         {
-            return (this->UUID < rhs.UUID || this->UUID == rhs.UUID);
+            return !(this->UUID > rhs.UUID);
         }
 
         bool operator>=(const Entity &rhs) const
         {
-            return (this->UUID > rhs.UUID || this->UUID == rhs.UUID);
+            return !(this->UUID < rhs.UUID);
         }
     };
 }
